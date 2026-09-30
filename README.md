@@ -36,6 +36,18 @@ fixed.
 
 **Teacher answer key:** add `?answer` to the address to load every game already fixed.
 
+## Play it online
+
+- **https://bug-squad-6gxr.onrender.com** (its own Render static site, redeploys on every push to
+  github.com/akilfoster2002-halo/bug-squad)
+- **https://mesacs-0-2.onrender.com/5/** (the 0.2 site)
+
+The folder is worked on here in MESACS_0.2 (`5/`), and the bug-squad repo is brought up to date with
+
+```bash
+git subtree push --prefix=5 bug-squad main
+```
+
 ## Running it
 
 A plain static folder: no build, no install, no network. Double-click `index.html`, or:
