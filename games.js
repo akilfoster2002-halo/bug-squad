@@ -416,7 +416,7 @@ window.BUGS = (function(){
     'Block code':'Código de bloques','Student:':'Estudiante:','Date:':'Fecha:','Bugs fixed:':'Bichos arreglados:',
     '(no name)':'(sin nombre)','(no blocks yet)':'(todavía no hay bloques)',
     'Teacher view — answer key loaded':'Vista del maestro — respuestas cargadas',
-    'BUGS':'BICHOS','{n} left':'quedan {n}','Hint':'Pista',
+    'BUGS':'BICHOS','Hint':'Pista',
     'GAME FIXED!':'¡JUEGO ARREGLADO!','Next game ▶':'Siguiente juego ▶',
     'You fixed all 18 bugs. You are a real debugger!':'Arreglaste los 18 bichos. ¡Eres un verdadero depurador!',
     'Press <b>RUN</b> to play':'Presiona <b>JUGAR</b> para jugar',
@@ -621,29 +621,25 @@ window.BUGS = (function(){
     bugPanel(now);
     levels();
   }
-  /* THE BUGS ARE THREE BUTTONS. Nothing to read until you ask: click a
-     bug and one line says what is wrong; click 💡 and one line says where. */
-  let openBug=-1;
+  /* THE THREE BUGS, down the side of the game: one short line each,
+     always showing, and 💡 for a one-line hint when you want it. */
   function bugPanel(now){
     const el=$('#bsBugs'); if(!el) return;
     now = now || status();
     const g=game(), done=now.every(Boolean), last=gi===GAMES.length-1;
-    if(openBug>=0 && now[openBug]) openBug=-1;
-    const b=openBug>=0 ? g.bugs[openBug] : null;
     const html=`
-      <div class="bs-row">
-        ${g.bugs.map((x,i)=>`<button class="bs-bug${now[i]?' ok':''}${i===openBug?' on':''}" data-bug="${i}"
-            ${now[i]?'disabled':''}>${now[i]?'✅':'🐞'}</button>`).join('')}
-        ${done ? `<b class="bs-won">🏆</b>${last?'':`<button class="dn-btn bs-next" id="bsNext">▶</button>`}` : ''}
-      </div>
-      ${b ? `<div class="bs-pop"><span>${T(b.what)}</span>
-          ${hints[openBug] ? `<small>💡 ${T(b.hint)}</small>`
-                           : `<button class="bs-hbtn" id="bsHint" title="${T('Hint')}">💡</button>`}</div>` : ''}`;
+      <div class="bs-head">🐞 ${T('BUGS')} ${now.filter(Boolean).length}/3</div>
+      ${g.bugs.map((b,i)=>`
+        <div class="bs-item${now[i]?' ok':''}">
+          <span class="bs-ico">${now[i]?'✅':'🐞'}</span>
+          <span class="bs-what">${T(b.what)}
+            ${hints[i]&&!now[i] ? `<small>💡 ${T(b.hint)}</small>` : ''}</span>
+          ${now[i]||hints[i] ? '' : `<button class="bs-hbtn" data-hint="${i}" title="${T('Hint')}">💡</button>`}
+        </div>`).join('')}
+      ${done ? `<div class="bs-done">🏆 ${last?'':`<button class="dn-btn bs-next" id="bsNext">▶</button>`}</div>` : ''}`;
     if(el.dataset.html!==html){
       el.dataset.html=html; el.innerHTML=html;
-      el.querySelectorAll('[data-bug]').forEach(x=>x.onclick=()=>{ const i=+x.dataset.bug;
-        openBug = openBug===i ? -1 : i; bugPanel(); });
-      const h=$('#bsHint'); if(h) h.onclick=()=>{ hints[openBug]=true; bugPanel(); };
+      el.querySelectorAll('[data-hint]').forEach(x=>x.onclick=()=>{ hints[+x.dataset.hint]=true; bugPanel(); });
       const nx=$('#bsNext'); if(nx) nx.onclick=()=>{ load(gi+1); intro(); };
     }
   }
@@ -864,7 +860,9 @@ window.BUGS = (function(){
   function gap(){
     const Wd=innerWidth, H=innerHeight;
     const bugs=$('#bsBugs'), bh=bugs ? bugs.offsetHeight+18 : 0;
-    if(window.CODER && CODER.open){
+    const coding=!!(window.CODER && CODER.open);
+    if(bugs) bugs.classList.toggle('side', !coding);
+    if(coding){
       const p=$('#cPal'), s=$('#cScript'), bar=$('#cBar');
       const l=p ? p.getBoundingClientRect().right+8 : 0;
       const r=s ? s.getBoundingClientRect().left-8 : Wd;
@@ -872,7 +870,9 @@ window.BUGS = (function(){
       if(r-l > 180) return { l, t, r, b:H-bh, coding:true };
     }
     const top=$('#bsTop'), tb=top ? top.getBoundingClientRect().bottom+8 : 0;
-    return { l:0, t:tb, r:Wd, b:H-bh, coding:false };
+    const bw=bugs ? bugs.offsetWidth+24 : 0;
+    if(bugs) bugs.style.top=(tb+4)+'px';
+    return { l:bw, t:tb, r:Wd, b:H-10, coding:false };
   }
   function camera(){
     const Wd=innerWidth, H=Math.max(1,innerHeight);
@@ -890,8 +890,9 @@ window.BUGS = (function(){
     G.camera=cam;
     /* the bug list sits under the screen, as wide as the gap allows */
     const bugs=$('#bsBugs');
-    if(bugs){ const w=Math.min(640, Math.max(260, rw-16));
-      bugs.style.width=w+'px'; bugs.style.left=((R.l+R.r)/2 - w/2)+'px'; }
+    if(bugs && R.coding){ const w=Math.min(560, Math.max(240, rw-16));
+      bugs.style.width=w+'px'; bugs.style.left=((R.l+R.r)/2 - w/2)+'px'; bugs.style.top=''; }
+    else if(bugs){ bugs.style.width=''; bugs.style.left=''; }
     const sc=$('#dnScore'), msg=$('#dnMsg');
     const sx = x => (x-cam.left)/u, sy = y => (cam.top-y)/u;       // squares → pixels
     if(sc){ sc.style.right=(Wd-sx(W.x1)+10)+'px'; sc.style.top=(sy(W.y1)+8)+'px'; }
