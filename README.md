@@ -36,7 +36,10 @@ you were on, the language and the name for the PDF are remembered by the browser
 **⤓ DOWNLOAD SCRIPT** saves the current game's code as a PDF to hand in, with the number of bugs
 fixed.
 
-**Teacher answer key:** add `?answer` to the address to load every game already fixed.
+**Teacher mode:** press 🔑 and type **1234**. Every game then shows **✅ Answer** (load the fixed
+code, to play it and read it) and **🐞 Bugs** (put the broken code back). Stars are not given in
+teacher mode, and it lasts until the tab is closed (🔑 again to leave). The code is only a
+convenience, not security: it is in the page. `?answer` on the address still opens every game fixed.
 
 ## Play it online
 

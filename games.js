@@ -28,6 +28,12 @@ window.BUGS = (function(){
   const STARS_KEY='bug-squad.stars.v1', NAME_KEY='bug-squad.name',
         LANG_KEY='bug-squad.lang', SOUND_KEY='bug-squad.sound', GAME_KEY='bug-squad.game';
   const teacher = typeof location!=='undefined' && /[?&]answer\b/.test(location.search);
+  /* TEACHER MODE: the 🔑 button and the code 1234. It only unlocks answer
+     buttons on this page — it keeps nothing secret, so it is a classroom
+     convenience, not a lock. It lasts until the tab is closed. */
+  const TEACH_CODE='1234', TEACH_KEY='bug-squad.teach';
+  let teach=teacher;
+  try{ if(sessionStorage.getItem(TEACH_KEY)==='on') teach=true; }catch(e){}
 
   /* ================================================== writing code
      Tiny builders, so a game's code below reads like the blocks do. */
@@ -395,7 +401,10 @@ window.BUGS = (function(){
     'Open the blocks':'Abre los bloques','Drag, click, fix.':'Arrastra, haz clic, arregla.',
     'Find the bugs':'Encuentra los bichos','3 in every game. 💡 if stuck.':'3 en cada juego. 💡 si te atoras.',
     'Start':'Empezar','Play':'Jugar','How to play':'Cómo jugar','Start this game over':'Empezar este juego de nuevo',
-    'Download my code':'Descargar mi código','Teacher view':'Vista del maestro',
+    'Download my code':'Descargar mi código','Teacher':'Maestro','Teacher code':'Código del maestro',
+    'That code is not right.':'Ese código no es correcto.','Leave teacher mode?':'¿Salir del modo maestro?',
+    'Leave teacher mode':'Salir del modo maestro','Answer':'Respuesta','Bugs':'Bichos',
+    'Load the fixed code':'Cargar el código arreglado','Load the broken code':'Cargar el código con bichos',
     'FIX THE BROKEN ARCADE GAMES':'ARREGLA LOS JUEGOS DE ARCADE ROTOS',
     'Six classic games, and every one has <b>3 bugs</b> in its code. Press <b>RUN</b> and watch what goes wrong. Then open the <b>BLOCKS</b> and fix it. The bug list at the bottom turns 🐞 into ✅ when a bug is fixed.':
       'Seis juegos clásicos, y cada uno tiene <b>3 bichos</b> (errores) en su código. Presiona <b>JUGAR</b> y mira qué sale mal. Luego abre los <b>BLOQUES</b> y arréglalo. La lista de abajo cambia 🐞 por ✅ cuando arreglas un error.',
@@ -575,7 +584,7 @@ window.BUGS = (function(){
     VM.project.vars={ ...g.vars };
     VM.project.lists={}; VM.project.procs=VM.project.procs||[];
   }
-  const handed = g => JSON.parse(JSON.stringify(g.code(teacher)));
+  const handed = (g, fixed) => JSON.parse(JSON.stringify(g.code(fixed==null ? teacher : !!fixed)));
   function given(code){
     const g=game(), all_=code || handed(g);
     g.cast.forEach(c=>{ const a=actor(c.name); if(a) a.scripts=JSON.parse(JSON.stringify(all_[c.name]||[])); });
@@ -655,7 +664,7 @@ window.BUGS = (function(){
     }
     fixedWas=key_;
     const done=now.every(Boolean);
-    if(done && !stars[game().id]){ stars[game().id]=true;
+    if(done && !teach && !stars[game().id]){ stars[game().id]=true;
       try{ localStorage.setItem(STARS_KEY, JSON.stringify(stars)); }catch(e){} }
     if(done && !celebrated){ celebrated=true; SND.win(); }
     if(!done) celebrated=false;
@@ -677,12 +686,41 @@ window.BUGS = (function(){
             ${hints[i]&&!now[i] ? `<small>💡 ${T(b.hint)}</small>` : ''}</span>
           ${now[i]||hints[i] ? '' : `<button class="bs-hbtn" data-hint="${i}" title="${T('Hint')}">💡</button>`}
         </div>`).join('')}
+      ${teach ? `<div class="bs-teach">
+          <button class="dn-btn" id="bsAns" title="${T('Load the fixed code')}">✅ ${T('Answer')}</button>
+          <button class="dn-btn" id="bsBug" title="${T('Load the broken code')}">🐞 ${T('Bugs')}</button></div>` : ''}
       ${done ? `<div class="bs-done">🏆 ${last?'':`<button class="dn-btn bs-next" id="bsNext">▶</button>`}</div>` : ''}`;
     if(el.dataset.html!==html){
       el.dataset.html=html; el.innerHTML=html;
       el.querySelectorAll('[data-hint]').forEach(x=>x.onclick=()=>{ hints[+x.dataset.hint]=true; bugPanel(); });
       const nx=$('#bsNext'); if(nx) nx.onclick=()=>{ load(gi+1); intro(); };
+      const an=$('#bsAns'); if(an) an.onclick=()=>swap(true);
+      const bg=$('#bsBug'); if(bg) bg.onclick=()=>swap(false);
     }
+  }
+  /* a teacher swaps this game's code for the answer key, or back to the bugs */
+  function swap(fixed){
+    VM.stopAll();
+    delete kept[game().id];
+    given(handed(game(), fixed));
+    VM.project.actors.filter(a=>a.isClone).slice().forEach(a=>VM.delActor(a));
+    game().cast.forEach(c=>{ const a=actor(c.name); if(a) VM.resetActor(a); });
+    Object.assign(VM.project.vars, game().vars);
+    hints={}; fixedWas=null;
+    if(window.CODER) CODER.render();
+    checkBugs();
+  }
+  function teacherKey(){
+    if(teach){
+      if(!confirm(T('Leave teacher mode?'))) return;
+      teach=false; try{ sessionStorage.removeItem(TEACH_KEY); }catch(e){}
+    } else {
+      const c=prompt(T('Teacher code'));
+      if(c===null) return;
+      if(c.trim()!==TEACH_CODE){ alert(T('That code is not right.')); return; }
+      teach=true; try{ sessionStorage.setItem(TEACH_KEY,'on'); }catch(e){}
+    }
+    words();
   }
   function levels(){
     const el=$('#bsLevels'); if(!el) return;
@@ -838,7 +876,8 @@ window.BUGS = (function(){
     tip('#dnLang', window.LANG==='es' ? 'English' : 'Español');
     tip('#dnHelp','How to play'); tip('#dnReset','Start this game over');
     tip('#dnPdf','Download my code');
-    const tb=$('#dnTeacher'); if(tb) tb.textContent=T('Teacher view');
+    const tb=$('#dnTeacher'); if(tb){ tb.textContent='🔑 '+T('Teacher'); tb.classList.toggle('hidden', !teach); }
+    const tk=$('#bsKey'); if(tk){ tk.classList.toggle('on', teach); tk.title=T(teach ? 'Leave teacher mode' : 'Teacher'); }
     if(briefOpen()) (tourAt<0 ? intro : tour)(tourAt<0 ? undefined : tourAt);
     message(); buttons(); fixedWas=null; bugPanel(); levels();
     if(window.CODER && CODER.open) CODER.render();
@@ -985,7 +1024,7 @@ window.BUGS = (function(){
     window.LANG = l==='es' ? 'es' : 'en';
     load(g0);
     on=true;
-    if(teacher) $('#dnTeacher').classList.remove('hidden');
+    $('#bsKey').onclick=teacherKey;
     camera();
     $('#view').addEventListener('pointerdown', pickAt);
     addEventListener('keydown', keys);

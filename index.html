@@ -14,7 +14,7 @@
      ===================================================================== -->
 <title>Bug Squad</title>
 <meta name="description" content="Six classic arcade games with bugs in their block code. Find them and fix them.">
-<link rel="stylesheet" href="app.css?v=1">
+<link rel="stylesheet" href="app.css?v=2">
 <style>
 @font-face{font-family:'Space Mono';src:url('fonts/spacemono-700.woff2') format('woff2');
   font-weight:700;font-style:normal;font-display:swap}
@@ -68,7 +68,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--dn-paper)}
 .dn-again:focus-visible{outline:3px solid #7ab8ff}
 
 /* a teacher at ?answer is looking at the answer key, and is told so */
-#dnTeacher{position:absolute;right:14px;top:14px;padding:6px 12px;background:#1d1b3d;color:#ffc14d;
+#dnTeacher{position:absolute;right:14px;top:62px;padding:6px 12px;background:#1d1b3d;color:#ffc14d;
   border:2px solid #ffc14d;border-radius:10px;font-family:var(--font-disp);font-size:12px;letter-spacing:1px}
 #dino.coding #dnTeacher,#dino.coding #dnMsg{display:none}
 
@@ -144,6 +144,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--dn-paper)}
 .bs-what code{font-family:var(--font-code);font-size:12.5px;background:#2a2757;
   padding:0 4px;border-radius:5px;color:#ffe14d;white-space:nowrap}
 .bs-hbtn{background:#2f2b63;border:1px solid #4b4885;border-radius:8px;cursor:pointer;font-size:15px;padding:2px 7px}
+.dn-btn.ic.on{border-color:#ffc14d;background:#3a2f12}
+.bs-teach{display:flex;gap:8px;justify-content:center;border-top:1px dashed #4b4885;padding-top:8px}
+.bs-teach .dn-btn{font-size:12px;padding:6px 10px;border-color:#ffc14d;color:#ffc14d}
 .bs-done{display:flex;gap:10px;align-items:center;justify-content:center;font-size:28px}
 .bs-next{color:#5dff7a;border-color:#5dff7a;font-size:16px;padding:8px 16px}
 .bs-line code{font-family:var(--font-code);font-size:13px;background:#2a2757;
@@ -181,6 +184,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--dn-paper)}
       <button class="dn-btn ic" id="dnLang">ES</button>
       <button class="dn-btn ic" id="dnReset" aria-label="Start over">↺</button>
       <button class="dn-btn ic" id="dnPdf" aria-label="Download">⤓</button>
+      <button class="dn-btn ic" id="bsKey" aria-label="Teacher">🔑</button>
     </div>
   </div>
   <div id="dnScore"></div>
@@ -200,13 +204,13 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--dn-paper)}
 </div>
 <div id="bsBugs"></div>
 
-<script src="lib/three.classic.js?v=1"></script>
-<script src="strings.js?v=1"></script>
-<script src="blocks.js?v=1"></script>
-<script src="vm.js?v=1"></script>
-<script src="coder.js?v=1"></script>
-<script src="costumes.js?v=1"></script>
-<script src="games.js?v=1"></script>
-<script src="boot.js?v=1"></script>
+<script src="lib/three.classic.js?v=2"></script>
+<script src="strings.js?v=2"></script>
+<script src="blocks.js?v=2"></script>
+<script src="vm.js?v=2"></script>
+<script src="coder.js?v=2"></script>
+<script src="costumes.js?v=2"></script>
+<script src="games.js?v=2"></script>
+<script src="boot.js?v=2"></script>
 </body>
 </html>
