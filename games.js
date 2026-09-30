@@ -145,20 +145,24 @@ window.BUGS = (function(){
             IF(gt(pos('x'),13), vset('alienSpeed',-0.15)),
             IF(lt(pos('x'),-13), vset('alienSpeed',0.15)),
             hit, ...(fixed ? [] : [hide()]) )) ],
-        Laser:[ flag(hide()),
-          onKey('space', setTo('x',of('x','Ship')), setTo('y',-7), show(),
-            ...(fixed ? [REP(40, chg('y',0.5))] : [REP(40), chg('y',0.5)]), hide()) ]
+        /* every shot is its own clone, so SPACE again fires a new laser
+           instead of yanking the one in the air back to the ship */
+        Laser:[
+          flag(hide(), forever(IF(key('space'),
+            setTo('x',of('x','Ship')), setTo('y',-7), B('ctrl.clone'), wait(0.25)))),
+          onClone(show(),
+            ...(fixed ? [REP(40, chg('y',0.5))] : [REP(40), chg('y',0.5)]), B('ctrl.delclone')) ]
       };
     },
     bugs:[
       { what:'← does nothing',
-        hint:'<b>Ship</b>: drag <code>if key left arrow</code> into <code>forever</code>',
+        hint:'A block outside the loop runs only once, at the very start.',
         ok:()=>{ const l=keyIfAll('Ship','left'); return l.length>0 && l.every(x=>inLoop(x.anc) && alone(x)); } },
       { what:'The laser won\'t fly',
-        hint:'<b>Laser</b>: drag <code>change y by 0.5</code> into <code>repeat</code>',
+        hint:'An empty <code>repeat</code> repeats… nothing. What should it repeat?',
         ok:()=>all('Laser').some(x=>moves('y',1)(x.b) && inLoop(x.anc)) },
       { what:'The alien is invisible',
-        hint:'<b>Alien</b>: drag <code>hide</code> into <code>if touching Laser</code>',
+        hint:'The alien hides every time round the loop. Should it hide only sometimes?',
         ok:()=>{ const h=all('Alien').filter(x=>x.b.op==='looks.hide');
           return h.length>0 && h.every(x=>x.anc.some(p=>p.op==='ctrl.if' && has(p.args.c, isTouch('Laser')))); } }
     ] },
@@ -191,13 +195,13 @@ window.BUGS = (function(){
     },
     bugs:[
       { what:'↑ hops down',
-        hint:'<b>Frog</b>, when ↑: <code>-1.5</code> → <code>1.5</code>',
+        hint:'On <b>y</b>, which way does a plus number go?',
         ok:()=>{ const b=keyHat('Frog','up'); return b.some(moves('y',1)) && !b.some(moves('y',-1)); } },
       { what:'↓ hops up',
-        hint:'<b>Frog</b>, when ↓: <code>1.5</code> → <code>-1.5</code>',
+        hint:'Down is the opposite of up. Compare it with the ↑ block.',
         ok:()=>{ const b=keyHat('Frog','down'); return b.some(moves('y',-1)) && !b.some(moves('y',1)); } },
       { what:'→ hops left',
-        hint:'<b>Frog</b>, when →: <code>-1.5</code> → <code>1.5</code>',
+        hint:'Look at the ← block. What should be different for →?',
         ok:()=>{ const b=keyHat('Frog','right'); return b.some(moves('x',1)) && !b.some(moves('x',-1)); } }
     ] },
 
@@ -227,13 +231,13 @@ window.BUGS = (function(){
     },
     bugs:[
       { what:'↑ goes right',
-        hint:'<b>Chomper</b>, if ↑: <code>x</code> → <code>y</code>',
+        hint:'Which letter goes up and down?',
         ok:()=>{ const f=keyIf('Chomper','up'); return f.some(x=>inside(x.b, moves('y',1))) && !f.some(x=>inside(x.b, b=>b.op==='motion.changeBy' && b.args.a==='x')); } },
       { what:'↓ goes left',
-        hint:'<b>Chomper</b>, if ↓: <code>x</code> → <code>y</code>',
+        hint:'Up and down both use the same letter.',
         ok:()=>{ const f=keyIf('Chomper','down'); return f.some(x=>inside(x.b, moves('y',-1))) && !f.some(x=>inside(x.b, b=>b.op==='motion.changeBy' && b.args.a==='x')); } },
       { what:'→ goes up',
-        hint:'<b>Chomper</b>, if →: <code>y</code> → <code>x</code>',
+        hint:'Which letter goes across?',
         ok:()=>{ const f=keyIf('Chomper','right'); return f.some(x=>inside(x.b, moves('x',1))) && !f.some(x=>inside(x.b, b=>b.op==='motion.changeBy' && b.args.a==='y')); } }
     ] },
 
@@ -263,17 +267,17 @@ window.BUGS = (function(){
     },
     bugs:[
       { what:'The ball shakes at the top',
-        hint:'<b>Ball</b>: <code>y &gt; -9</code> → <code>y &lt; -9</code>',
+        hint:'Where on the screen is y bigger than -9?',
         ok:()=>{ const f=ifs('Ball');
           return f.some(x=>side(x.b.args.c,'y').some(s=>s.s==='<' && s.n<0) && inside(x.b, sets('vy',1))) &&
                 !f.some(x=>side(x.b.args.c,'y').some(s=>s.s==='>' && s.n<0) && inside(x.b, sets('vy',1))); } },
       { what:'The ball always flies left',
-        hint:'<b>Ball</b>: <code>x &lt; 15</code> → <code>x &gt; 15</code>',
+        hint:'Where on the screen is x less than 15?',
         ok:()=>{ const f=ifs('Ball');
           return f.some(x=>side(x.b.args.c,'x').some(s=>s.s==='>' && s.n>0) && inside(x.b, sets('vx',-1))) &&
                 !f.some(x=>side(x.b.args.c,'x').some(s=>s.s==='<' && s.n>0) && inside(x.b, sets('vx',-1))); } },
       { what:'The paddle won\'t go up',
-        hint:'<b>Paddle</b>: <code>y &gt; 6</code> → <code>y &lt; 6</code>',
+        hint:'The paddle starts at y -1.5. Is -1.5 greater than 6?',
         ok:()=>{ const f=keyIf('Paddle','up');
           return f.some(x=>side(x.b.args.c,'y').some(s=>s.s==='<' && s.n>0) && inside(x.b, moves('y',1))) &&
                 !f.some(x=>side(x.b.args.c,'y').some(s=>s.s==='>' && s.n>0)); } }
@@ -311,13 +315,13 @@ window.BUGS = (function(){
     },
     bugs:[
       { what:'← does nothing',
-        hint:'<b>Bat</b>: key <code>a</code> → <code>left arrow</code>',
+        hint:'Which key is the Bat listening for?',
         ok:()=>keyIf('Bat','left').some(x=>inside(x.b, moves('x',-1))) },
       { what:'The ball goes through the bat',
-        hint:'<b>Ball</b>: <code>touching Brick</code> → <code>Bat</code>',
+        hint:'When the ball bounces up, what is it checking for?',
         ok:()=>ifs('Ball').some(x=>has(x.b.args.c, isTouch('Bat')) && inside(x.b, sets('vy',1))) },
       { what:'Bricks never break',
-        hint:'<b>Brick</b>: <code>touching Bat</code> → <code>Ball</code>',
+        hint:'What should a brick touch to break?',
         ok:()=>ifs('Brick').some(x=>has(x.b.args.c, isTouch('Ball'))) }
     ] },
 
@@ -349,13 +353,13 @@ window.BUGS = (function(){
     },
     bugs:[
       { what:'SPACE sinks the hero',
-        hint:'<b>Hero</b>: <code>vy</code> <code>-0.5</code> → <code>0.5</code>',
+        hint:'Does a minus speed go up or down?',
         ok:()=>{ const f=keyIf('Hero','space'); return f.some(x=>inside(x.b, sets('vy',1))) && !f.some(x=>inside(x.b, sets('vy',-1))); } },
       { what:'No gravity',
-        hint:'Add <code>change vy by -0.025</code> into <b>Hero</b>\'s <code>forever</code>',
+        hint:'After a jump, what pulls you back down? Look in Variables.',
         ok:()=>all('Hero').some(x=>x.b.op==='data.change' && x.b.args.v==='vy' && num(x.b.args.n)<0 && inLoop(x.anc)) },
       { what:'The hero can\'t jump',
-        hint:'<b>Hero</b>: <code>y &gt; 0</code> → <code>y &lt; 0</code>',
+        hint:'Should the hero snap to the ground when it is above it, or below it?',
         ok:()=>{ const f=ifs('Hero');
           const lands=x=>inside(x.b, b=>b.op==='motion.setTo' && b.args.a==='y');
           return f.some(x=>side(x.b.args.c,'y').some(s=>s.s==='<' && s.n<=0.5) && lands(x)) &&
@@ -427,45 +431,45 @@ window.BUGS = (function(){
     /* the six lessons and eighteen bugs */
     'Inside the loop = repeats. Outside = once.':'Dentro del bucle = se repite. Afuera = una vez.',
     '← does nothing':'← no hace nada',
-    '<b>Ship</b>: drag <code>if key left arrow</code> into <code>forever</code>':'<b>Ship</b>: arrastra <code>if key left arrow</code> dentro de <code>forever</code>',
+    'A block outside the loop runs only once, at the very start.':'Un bloque fuera del bucle se ejecuta una sola vez, al principio.',
     'The laser won\'t fly':'El láser no vuela',
-    '<b>Laser</b>: drag <code>change y by 0.5</code> into <code>repeat</code>':'<b>Laser</b>: arrastra <code>change y by 0.5</code> dentro de <code>repeat</code>',
+    'An empty <code>repeat</code> repeats… nothing. What should it repeat?':'Un <code>repeat</code> vacío repite… nada. ¿Qué debería repetir?',
     'The alien is invisible':'El alien es invisible',
-    '<b>Alien</b>: drag <code>hide</code> into <code>if touching Laser</code>':'<b>Alien</b>: arrastra <code>hide</code> dentro de <code>if touching Laser</code>',
+    'The alien hides every time round the loop. Should it hide only sometimes?':'El alien se esconde en cada vuelta del bucle. ¿Debería esconderse solo a veces?',
     '<b>+</b> up / right &nbsp; <b>−</b> down / left':'<b>+</b> arriba / derecha &nbsp; <b>−</b> abajo / izquierda',
     '↑ hops down':'↑ salta abajo',
-    '<b>Frog</b>, when ↑: <code>-1.5</code> → <code>1.5</code>':'<b>Frog</b>, con ↑: <code>-1.5</code> → <code>1.5</code>',
+    'On <b>y</b>, which way does a plus number go?':'En <b>y</b>, ¿hacia dónde va un número positivo?',
     '↓ hops up':'↓ salta arriba',
-    '<b>Frog</b>, when ↓: <code>1.5</code> → <code>-1.5</code>':'<b>Frog</b>, con ↓: <code>1.5</code> → <code>-1.5</code>',
+    'Down is the opposite of up. Compare it with the ↑ block.':'Abajo es lo contrario de arriba. Compáralo con el bloque de ↑.',
     '→ hops left':'→ salta a la izquierda',
-    '<b>Frog</b>, when →: <code>-1.5</code> → <code>1.5</code>':'<b>Frog</b>, con →: <code>-1.5</code> → <code>1.5</code>',
+    'Look at the ← block. What should be different for →?':'Mira el bloque de ←. ¿Qué debería ser diferente para →?',
     '<b>x</b> ↔ &nbsp;&nbsp; <b>y</b> ↕':'<b>x</b> ↔ &nbsp;&nbsp; <b>y</b> ↕',
     '↑ goes right':'↑ va a la derecha',
-    '<b>Chomper</b>, if ↑: <code>x</code> → <code>y</code>':'<b>Chomper</b>, si ↑: <code>x</code> → <code>y</code>',
+    'Which letter goes up and down?':'¿Qué letra va arriba y abajo?',
     '↓ goes left':'↓ va a la izquierda',
-    '<b>Chomper</b>, if ↓: <code>x</code> → <code>y</code>':'<b>Chomper</b>, si ↓: <code>x</code> → <code>y</code>',
+    'Up and down both use the same letter.':'Arriba y abajo usan la misma letra.',
     '→ goes up':'→ va arriba',
-    '<b>Chomper</b>, if →: <code>y</code> → <code>x</code>':'<b>Chomper</b>, si →: <code>y</code> → <code>x</code>',
+    'Which letter goes across?':'¿Qué letra va de lado a lado?',
     '<b>&lt;</b> less than &nbsp; <b>&gt;</b> greater than':'<b>&lt;</b> menor que &nbsp; <b>&gt;</b> mayor que',
     'The ball shakes at the top':'La pelota tiembla arriba',
-    '<b>Ball</b>: <code>y &gt; -9</code> → <code>y &lt; -9</code>':'<b>Ball</b>: <code>y &gt; -9</code> → <code>y &lt; -9</code>',
+    'Where on the screen is y bigger than -9?':'¿En qué parte de la pantalla y es mayor que -9?',
     'The ball always flies left':'La pelota siempre va a la izquierda',
-    '<b>Ball</b>: <code>x &lt; 15</code> → <code>x &gt; 15</code>':'<b>Ball</b>: <code>x &lt; 15</code> → <code>x &gt; 15</code>',
+    'Where on the screen is x less than 15?':'¿En qué parte de la pantalla x es menor que 15?',
     'The paddle won\'t go up':'La paleta no sube',
-    '<b>Paddle</b>: <code>y &gt; 6</code> → <code>y &lt; 6</code>':'<b>Paddle</b>: <code>y &gt; 6</code> → <code>y &lt; 6</code>',
+    'The paddle starts at y -1.5. Is -1.5 greater than 6?':'La paleta empieza en y -1.5. ¿Es -1.5 mayor que 6?',
     'Sensing asks: <b>touching?</b> <b>pressed?</b>':'Los sensores preguntan: <b>¿tocando?</b> <b>¿presionada?</b>',
-    '<b>Bat</b>: key <code>a</code> → <code>left arrow</code>':'<b>Bat</b>: tecla <code>a</code> → <code>left arrow</code>',
+    'Which key is the Bat listening for?':'¿Qué tecla está escuchando el Bate?',
     'The ball goes through the bat':'La pelota atraviesa el bate',
-    '<b>Ball</b>: <code>touching Brick</code> → <code>Bat</code>':'<b>Ball</b>: <code>touching Brick</code> → <code>Bat</code>',
+    'When the ball bounces up, what is it checking for?':'Cuando la pelota rebota hacia arriba, ¿qué está revisando?',
     'Bricks never break':'Los ladrillos no se rompen',
-    '<b>Brick</b>: <code>touching Bat</code> → <code>Ball</code>':'<b>Brick</b>: <code>touching Bat</code> → <code>Ball</code>',
+    'What should a brick touch to break?':'¿Qué debería tocar un ladrillo para romperse?',
     'Jump ↑ &nbsp; Fall ↓ &nbsp; Land ▁':'Salta ↑ &nbsp; Cae ↓ &nbsp; Aterriza ▁',
     'SPACE sinks the hero':'SPACE hunde al héroe',
-    '<b>Hero</b>: <code>vy</code> <code>-0.5</code> → <code>0.5</code>':'<b>Hero</b>: <code>vy</code> <code>-0.5</code> → <code>0.5</code>',
+    'Does a minus speed go up or down?':'¿Una velocidad negativa va arriba o abajo?',
     'No gravity':'No hay gravedad',
-    'Add <code>change vy by -0.025</code> into <b>Hero</b>\'s <code>forever</code>':'Agrega <code>change vy by -0.025</code> dentro del <code>forever</code> del <b>Hero</b>',
+    'After a jump, what pulls you back down? Look in Variables.':'Después de un salto, ¿qué te jala hacia abajo? Busca en Variables.',
     'The hero can\'t jump':'El héroe no puede saltar',
-    '<b>Hero</b>: <code>y &gt; 0</code> → <code>y &lt; 0</code>':'<b>Hero</b>: <code>y &gt; 0</code> → <code>y &lt; 0</code>'
+    'Should the hero snap to the ground when it is above it, or below it?':'¿El héroe debe volver al suelo cuando está arriba o abajo de él?'
   });
 
   /* ==================================================== the objects */

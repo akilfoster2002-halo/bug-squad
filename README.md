@@ -6,7 +6,7 @@ watch what goes wrong, open the **BLOCKS** and fix it. The bug list under the sc
 
 | # | Game | Lesson | The three bugs |
 |---|---|---|---|
-| 1 | 🚀 Space Blaster | Indentation | the ← `if` is outside the `forever`; `change y` is under the `repeat` instead of in it; `hide` is outside the `if touching Laser` |
+| 1 | 🚀 Space Blaster | Indentation | the ← `if` is outside the `forever`; the laser clone's `change y` is under the `repeat` instead of in it; `hide` is outside the `if touching Laser` |
 | 2 | 🐸 Road Hopper | Plus and minus | ↑ hops down, ↓ hops up, → hops left |
 | 3 | 🟡 Chomp | x and y | ↑ and ↓ change `x`; → changes `y` |
 | 4 | 🏓 Paddle Pong | `<` and `>` | the bottom bounce, the right-wall bounce and the paddle's top limit each use the wrong one |
@@ -15,7 +15,7 @@ watch what goes wrong, open the **BLOCKS** and fix it. The bug list under the sc
 
 The screen stays quiet: a 4-card click-through to start, one card per game (icon, one-line rule,
 keys, ▶ Play), icon buttons, and the bugs as three 🐞 buttons — click one for a single line saying
-what is wrong, then 💡 for a one-line hint. Everything is in English and Spanish (ES / EN), and the
+what is wrong, then 💡 for a hint that nudges (a question, never the answer). Everything is in English and Spanish (ES / EN), and the
 block words stay English because they are the code.
 
 ## The editor

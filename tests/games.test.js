@@ -31,7 +31,13 @@ test('1 Space Blaster: fixed, the laser flies up and the ship moves both ways', 
   d.G.keys.ArrowLeft=true; d.step(10); d.G.keys.ArrowLeft=false;
   assert.ok(ship.x < x0-3, 'left moves');
   d.G.keys.Space=true; d.step(2); d.G.keys.Space=false; d.step(20);
-  assert.ok(d.y(d.who('Laser')) > -2, 'laser flew');
+  const shots=()=>d.VM.project.actors.filter(a=>a.name==='Laser' && a.isClone);
+  assert.ok(shots().some(l=>d.y(l) > -2), 'laser flew');
+  /* SPACE again fires a second laser; the first one keeps flying */
+  const first=shots()[0], was=d.y(first);
+  d.G.keys.Space=true; d.step(2); d.G.keys.Space=false; d.step(2);
+  assert.strictEqual(shots().length, 2);
+  assert.ok(d.y(first) > was, 'the first laser was not reset');
 });
 test('1 Space Blaster: buggy, left does nothing', ()=>{
   const d=arcade(0,false);
