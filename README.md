@@ -9,7 +9,7 @@ watch what goes wrong, open the **BLOCKS** and fix it. The bug list under the sc
 | 1 | 🚀 Space Blaster | Indentation | the ← `if` is outside the `forever`; the laser clone's `change y` is under the `repeat` instead of in it; `hide` is outside the `if touching Laser` |
 | 2 | 🐸 Road Hopper | Plus and minus | ↑ hops down, ↓ hops up, → hops left |
 | 3 | 🟡 Chomp | x and y | ↑ and ↓ change `x`; → changes `y` |
-| 4 | 🏓 Paddle Pong | Boundaries (`<` `>`) | the ball never comes down from the top · never reaches the right wall · the paddle jumps to the top and can't come down. The screen shows a numbered grid and each boundary as a labelled dashed line (`y = 8`, `y = -9`, `x = 15`, `y = 6`) |
+| 4 | 💣 Bomb Catch (Kaboom!) | `<` and `>` | the bomb never falls (`y > -9`) · the bomber gets stuck on the right (`x > -13`) · it says "You win!" before you catch anything (`score < 9`) |
 | 5 | 🧱 Brick Smash | Sensing | `key a` instead of `left arrow`; the Ball bounces off `Brick` instead of `Bat`; a Brick breaks on `Bat` instead of `Ball` |
 | 6 | 🍄 Jump Bros | Jumping | the jump speed is minus; the gravity block is **missing** (students add it); the landing test is `>` instead of `<` (the ground is marked `y = 0`) |
 

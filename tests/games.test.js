@@ -52,10 +52,22 @@ test('2 Road Hopper: fixed, up goes up', ()=>{
   d.G.keys.ArrowUp=true; d.step(2); d.G.keys.ArrowUp=false; d.step(1);
   assert.ok(d.y(d.who('Frog')) > -9);
 });
-test('4 Paddle Pong: fixed, the ball bounces off the right wall and comes back', ()=>{
-  const d=arcade(3,true);
-  d.VM.greenFlag(); d.step(120);
-  assert.ok(+d.VM.project.vars.vx < 0);
+test('4 Bomb Catch: buggy, the bomb never falls; fixed, it falls and comes back', ()=>{
+  const bad=arcade(3,false); bad.VM.greenFlag(); bad.step(30);
+  assert.ok(bad.y(bad.who('Bomb')) > 5);
+  const ok=arcade(3,true); ok.VM.greenFlag(); ok.step(30);
+  assert.ok(ok.y(ok.who('Bomb')) < 1);
+  ok.step(60); assert.ok(ok.y(ok.who('Bomb')) > 0, 'back at the top after missing');
+});
+test('4 Bomb Catch: buggy, the bomber gets stuck at the right wall (and stays on screen)', ()=>{
+  const d=arcade(3,false); d.VM.greenFlag(); d.step(600);
+  const x=d.who('Bomber').x; assert.ok(x>12 && x<14, 'x = '+x);
+});
+test('4 Bomb Catch: fixed, the bomber turns round at both walls', ()=>{
+  const d=arcade(3,true); d.VM.greenFlag();
+  let lo=0, hi=0;
+  for(let i=0;i<600;i++){ d.step(1); const x=d.who('Bomber').x; lo=Math.min(lo,x); hi=Math.max(hi,x); }
+  assert.ok(hi>12.9 && lo<-12.9);
 });
 test('5 Brick Smash: fixed, seven bricks appear and the ball can break one', ()=>{
   const d=arcade(4,true);
@@ -63,14 +75,6 @@ test('5 Brick Smash: fixed, seven bricks appear and the ball can break one', ()=
   assert.strictEqual(d.VM.project.actors.filter(a=>a.name==='Brick' && a.isClone).length, 7);
   d.step(600);
   assert.ok(+d.VM.project.vars.score >= 1, 'a brick broke');
-});
-test('4 Paddle Pong: buggy, the paddle snaps to y 6; fixed, it starts where it stands', ()=>{
-  const bad=arcade(3,false); bad.VM.greenFlag(); bad.step(5);
-  assert.strictEqual(bad.y(bad.who('Paddle')), 6);
-  const ok=arcade(3,true); ok.VM.greenFlag(); ok.step(5);
-  assert.strictEqual(ok.y(ok.who('Paddle')), -1.5);
-  ok.G.keys.ArrowUp=true; ok.step(120);
-  assert.strictEqual(ok.y(ok.who('Paddle')), 6, 'stops at the top boundary');
 });
 test('no game uses `and` or `or` (not taught yet)', ()=>{
   const d=arcade(0,true);

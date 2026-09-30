@@ -116,6 +116,43 @@ window.COSTUMES = (function(){
     ...Array(8).fill('#'.repeat(26)),
     '#'.repeat(26)
   ];
+  const BOMBER = [
+    '...#######...',
+    '..#########..',
+    '..#o#o#o#o#..',
+    '..#########..',
+    '...#o###o#...',
+    '...#######...',
+    '....#ooo#....',
+    '..#########..',
+    '.###########.',
+    '#o#o#o#o#o#o#',
+    '.###########.',
+    '..###...###..',
+    '..###...###..'
+  ];
+  const BOMB = [
+    '......##',
+    '.....#..',
+    '..####..',
+    '.######.',
+    '##o#####',
+    '#o######',
+    '########',
+    '########',
+    '.######.',
+    '..####..'
+  ];
+  const BUCKET = [
+    '##..............##',
+    '##..............##',
+    '###............###',
+    '.###..........###.',
+    '.################.',
+    '..##############..',
+    '..#o#o#o#o#o#o#o..',
+    '...############...'
+  ];
   const HERO = [
     '....#####.....',
     '...#########..',
@@ -168,6 +205,9 @@ window.COSTUMES = (function(){
     'court/paddle':  { name:'Paddle',  ink:'#5dc8ff', layer:2, art:PADDLE_V },
     'court/bat':     { name:'Bat',     ink:'#5dc8ff', layer:2, art:PADDLE_H },
     'court/brick':   { name:'Brick',   ink:'#ff9a3d', layer:1, art:BRICK },
+    'catch/bomber':  { name:'Bomber',  ink:'#b8b8d8', layer:2, art:BOMBER },
+    'catch/bomb':    { name:'Bomb',    ink:'#ff8a3d', layer:3, art:BOMB },
+    'catch/bucket':  { name:'Bucket',  ink:'#5dc8ff', layer:2, art:BUCKET },
     'plat/hero':     { name:'Hero',    ink:'#ff4d4d', layer:3, art:HERO },
     'plat/goomba':   { name:'Mushroom',ink:'#c88a4a', layer:2, art:GOOMBA },
     'plat/flag':     { name:'Flag',    ink:'#5dff7a', layer:1, art:FLAG }
@@ -184,6 +224,8 @@ window.COSTUMES = (function(){
         it('chomp','Chomper'), it('ghost','Ghost'), it('cherry','Cherry') ] },
     { id:'court', name:'Court', dir:null, thumbs:null, items:[
         it('ball','Ball'), it('paddle','Paddle'), it('bat','Bat'), it('brick','Brick') ] },
+    { id:'catch', name:'Catch', dir:null, thumbs:null, items:[
+        it('bomber','Bomber'), it('bomb','Bomb'), it('bucket','Bucket') ] },
     { id:'plat', name:'Platform', dir:null, thumbs:null, items:[
         it('hero','Hero'), it('goomba','Mushroom'), it('flag','Flag') ] },
     { id:'shapes', name:'Shapes', dir:null, thumbs:null, items:[

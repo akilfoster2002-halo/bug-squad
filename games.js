@@ -11,7 +11,7 @@
      1  Space Blaster   INDENTATION   a block outside the loop it belongs in
      2  Road Hopper     + AND −       a number with the wrong sign
      3  Chomp           x AND y       across the screen, or up it
-     4  Paddle Pong     < AND >       the alligator eats the bigger number
+     4  Bomb Catch      < AND >       the alligator eats the bigger number
      5  Brick Smash     SENSING       touching the right thing, the right key
      6  Jump Bros       JUMPING       jump up, fall down, land on the ground
 
@@ -248,50 +248,53 @@ window.BUGS = (function(){
         ok:()=>{ const f=keyIf('Chomper','right'); return f.some(x=>inside(x.b, moves('x',1))) && !f.some(x=>inside(x.b, b=>b.op==='motion.changeBy' && b.args.a==='y')); } }
     ] },
 
-  /* ---------------------------------------------------- 4 OPERATORS */
-  { id:'pong', icon:'🏓', name:'Paddle Pong', topic:'Boundaries',
-    lesson:'<b>&lt;</b> less than &nbsp; <b>&gt;</b> greater than<br>The dashed lines are the walls.',
-    world:{ court:true, grid:true, marks:[
-      { y:8,   col:'#ffe14d' }, { y:-9, col:'#ffe14d' }, { x:15, col:'#ffe14d' },
-      { y:6,   col:'#5dc8ff', from:-17, to:-11 } ] },
+  /* ---------------------------------------------------- 4 OPERATORS
+     Kaboom!: a Bomber walks along the top dropping bombs, you catch them
+     in a Bucket. Each bug is one comparison pointing the wrong way. */
+  { id:'catch', icon:'💣', name:'Bomb Catch', topic:'Less than, greater than',
+    lesson:'<b>&lt;</b> less than &nbsp; <b>&gt;</b> greater than',
+    world:{ },
     cast:[
-      { name:'Ball',   shape:'court/ball',   x:0,   y:0 },
-      { name:'Paddle', shape:'court/paddle', x:-14, y:-1.5 }
+      { name:'Bomber', shape:'catch/bomber', x:0, y:7 },
+      { name:'Bomb',   shape:'catch/bomb',   x:0, y:6 },
+      { name:'Bucket', shape:'catch/bucket', x:0, y:-8 }
     ],
-    vars:{ score:0, vx:0.2, vy:0.12 },
-    keys:[['↑ ↓','move the paddle']],
+    vars:{ score:0, speed:0.2 },
+    keys:[['← →','move the bucket']],
     code(fixed){
       return {
-        Ball:[ flag(goto(0,0), vset('score',0), vset('vx',0.2), vset('vy',0.12), forever(
-          chg('x',v('vx')), chg('y',v('vy')),
-          IF(gt(pos('y'),8), vset('vy',-0.12)),
-          IF(fixed ? lt(pos('y'),-9) : gt(pos('y'),-9), vset('vy',0.12)),
-          IF(fixed ? gt(pos('x'),15) : lt(pos('x'),15), vset('vx',-0.2)),
-          IF(touch('Paddle'), vset('vx',0.2), vchg('score',1)),
-          IF(lt(pos('x'),-16), goto(0,0)) )) ],
-        Paddle:[ flag(goto(-14,-1.5), forever(
-          IF(key('up'),   chg('y',0.3)),
-          IF(key('down'), chg('y',-0.3)),
-          IF(fixed ? gt(pos('y'),6) : lt(pos('y'),6), setTo('y',6)),
-          IF(lt(pos('y'),-9), setTo('y',-9)) )) ]
+        Bomber:[ flag(goto(0,7), vset('speed',0.2), forever(
+          chg('x',v('speed')),
+          IF(fixed ? lt(pos('x'),-13) : gt(pos('x'),-13), vset('speed',0.2)),
+          IF(gt(pos('x'),13), vset('speed',-0.2)) )) ],
+        Bomb:[ flag(goto(0,6), vset('score',0), forever(
+          chg('y',-0.2),
+          IF(fixed ? lt(pos('y'),-9) : gt(pos('y'),-9), goto(of('x','Bomber'),6)),
+          IF(touch('Bucket'), vchg('score',1), goto(of('x','Bomber'),6)) )) ],
+        Bucket:[ flag(goto(0,-8), say(''), forever(
+          IF(key('left'),  chg('x',-0.4)),
+          IF(key('right'), chg('x',0.4)),
+          IF(fixed ? gt(v('score'),9) : lt(v('score'),9), say('You win!')) )) ]
       };
     },
     bugs:[
-      { what:'The ball never comes down from the top wall',
-        hint:'Find the line <code>y = -9</code>. Is the ball above it or below it most of the time?',
-        ok:()=>{ const f=ifs('Ball');
-          return f.some(x=>side(x.b.args.c,'y').some(s=>s.s==='<' && s.n<0) && inside(x.b, sets('vy',1))) &&
-                !f.some(x=>side(x.b.args.c,'y').some(s=>s.s==='>' && s.n<0) && inside(x.b, sets('vy',1))); } },
-      { what:'The ball never reaches the right wall',
-        hint:'Find the line <code>x = 15</code>. Where on the screen is x less than 15?',
-        ok:()=>{ const f=ifs('Ball');
-          return f.some(x=>side(x.b.args.c,'x').some(s=>s.s==='>' && s.n>0) && inside(x.b, sets('vx',-1))) &&
-                !f.some(x=>side(x.b.args.c,'x').some(s=>s.s==='<' && s.n>0) && inside(x.b, sets('vx',-1))); } },
-      { what:'The paddle jumps to the top and can\'t come down',
-        hint:'The blue line is <code>y = 6</code>. The paddle starts at y -1.5. Is -1.5 less than 6?',
-        ok:()=>{ const f=ifs('Paddle'), top=x=>inside(x.b, b=>b.op==='motion.setTo' && b.args.a==='y' && num(b.args.n)>0);
-          return f.some(x=>side(x.b.args.c,'y').some(s=>s.s==='>' && s.n>0) && top(x)) &&
-                !f.some(x=>side(x.b.args.c,'y').some(s=>s.s==='<' && s.n>0) && top(x)); } }
+      { what:'The bomb never falls',
+        hint:'The bomb starts at y 6. Is 6 greater than -9?',
+        ok:()=>{ const f=ifs('Bomb'), back=x=>inside(x.b, b=>b.op==='motion.goto' || (b.op==='motion.setTo' && b.args.a==='y'));
+          return f.some(x=>side(x.b.args.c,'y').some(s=>s.s==='<' && s.n<0) && back(x)) &&
+                !f.some(x=>side(x.b.args.c,'y').some(s=>s.s==='>' && s.n<0) && back(x)); } },
+      { what:'The bomber gets stuck on the right',
+        hint:'Look at the two <code>if</code> blocks. Which side is the left wall on?',
+        ok:()=>{ const f=ifs('Bomber');
+          return f.some(x=>side(x.b.args.c,'x').some(s=>s.s==='<' && s.n<0) && inside(x.b, sets('speed',1))) &&
+                !f.some(x=>side(x.b.args.c,'x').some(s=>s.s==='>' && s.n<0) && inside(x.b, sets('speed',1))); } },
+      { what:'It says "You win!" before you catch anything',
+        hint:'At the start the score is 0. Is 0 less than 9?',
+        ok:()=>{ const score=x=>x && typeof x==='object' && x.op==='data.get' && x.args.v==='score';
+          const wins=all('Bucket').concat(all('Bomb'),all('Bomber')).filter(x=>(x.b.op==='ctrl.if') && inside(x.b, b=>b.op==='looks.say'));
+          const big=c=>c && ((c.op==='op.gt' && score(c.args.a)) || (c.op==='op.lt' && score(c.args.b)));
+          const small=c=>c && ((c.op==='op.lt' && score(c.args.a)) || (c.op==='op.gt' && score(c.args.b)));
+          return wins.some(x=>big(x.b.args.c)) && !wins.some(x=>small(x.b.args.c)); } }
     ] },
 
   /* ------------------------------------------------------ 5 SENSING */
@@ -402,6 +405,13 @@ window.BUGS = (function(){
     'Find the bugs':'Encuentra los bichos','3 in every game. 💡 if stuck.':'3 en cada juego. 💡 si te atoras.',
     'Start':'Empezar','Play':'Jugar','How to play':'Cómo jugar','Start this game over':'Empezar este juego de nuevo',
     'Download my code':'Descargar mi código',
+    '<b>&lt;</b> less than &nbsp; <b>&gt;</b> greater than':'<b>&lt;</b> menor que &nbsp; <b>&gt;</b> mayor que',
+    'The bomb never falls':'La bomba nunca cae',
+    'The bomb starts at y 6. Is 6 greater than -9?':'La bomba empieza en y 6. ¿Es 6 mayor que -9?',
+    'The bomber gets stuck on the right':'El bombardero se atora a la derecha',
+    'Look at the two <code>if</code> blocks. Which side is the left wall on?':'Mira los dos bloques <code>if</code>. ¿De qué lado está la pared izquierda?',
+    'It says "You win!" before you catch anything':'Dice "You win!" antes de que atrapes algo',
+    'At the start the score is 0. Is 0 less than 9?':'Al principio los puntos son 0. ¿Es 0 menor que 9?',
     'My badge':'Mi insignia','You did it!':'¡Lo lograste!','Your name':'Tu nombre',
     'Download badge':'Descargar insignia','MASTER DEBUGGER':'MAESTRO DEPURADOR',
     '18 of 18 bugs fixed':'18 de 18 bichos arreglados','Teacher':'Maestro','Teacher code':'Código del maestro',
@@ -422,10 +432,10 @@ window.BUGS = (function(){
     'THE GAMES':'LOS JUEGOS',
     'Start fixing ▶':'Empezar a arreglar ▶',
     'Space Blaster':'Space Blaster (Nave)','Road Hopper':'Road Hopper (Rana)','Chomp':'Chomp (Come-cocos)',
-    'Paddle Pong':'Paddle Pong (Tenis)','Brick Smash':'Brick Smash (Ladrillos)','Jump Bros':'Jump Bros (Saltos)',
+    'Bomb Catch':'Bomb Catch (Atrapa bombas)','Brick Smash':'Brick Smash (Ladrillos)','Jump Bros':'Jump Bros (Saltos)',
     'Indentation':'Sangría (adentro/afuera)','Plus and minus':'Más y menos','x and y':'x y y',
-    'Boundaries':'Límites','Sensing':'Sensores','Jumping':'Saltar',
-    'move':'mover','shoot':'disparar','hop':'saltar','move the paddle':'mover la paleta',
+    'Less than, greater than':'Menor que, mayor que','Sensing':'Sensores','Jumping':'Saltar',
+    'move':'mover','shoot':'disparar','hop':'saltar','move the bucket':'mover la cubeta',
     'move the bat':'mover el bate','walk':'caminar','jump':'saltar',
     'BLOCKS':'BLOQUES','RUN':'JUGAR','STOP':'PARAR','DOWNLOAD SCRIPT':'DESCARGAR CÓDIGO',
     'Show the instructions again':'Ver las instrucciones otra vez',
@@ -467,13 +477,6 @@ window.BUGS = (function(){
     'Up and down both use the same letter.':'Arriba y abajo usan la misma letra.',
     '→ goes up':'→ va arriba',
     'Which letter goes across?':'¿Qué letra va de lado a lado?',
-    '<b>&lt;</b> less than &nbsp; <b>&gt;</b> greater than<br>The dashed lines are the walls.':'<b>&lt;</b> menor que &nbsp; <b>&gt;</b> mayor que<br>Las líneas punteadas son las paredes.',
-    'The ball never comes down from the top wall':'La pelota nunca baja de la pared de arriba',
-    'Find the line <code>y = -9</code>. Is the ball above it or below it most of the time?':'Busca la línea <code>y = -9</code>. ¿La pelota casi siempre está arriba o abajo de ella?',
-    'The ball never reaches the right wall':'La pelota nunca llega a la pared derecha',
-    'Find the line <code>x = 15</code>. Where on the screen is x less than 15?':'Busca la línea <code>x = 15</code>. ¿En qué parte de la pantalla x es menor que 15?',
-    'The paddle jumps to the top and can\'t come down':'La paleta salta arriba y no puede bajar',
-    'The blue line is <code>y = 6</code>. The paddle starts at y -1.5. Is -1.5 less than 6?':'La línea azul es <code>y = 6</code>. La paleta empieza en y -1.5. ¿Es -1.5 menor que 6?',
     'Sensing asks: <b>touching?</b> <b>pressed?</b>':'Los sensores preguntan: <b>¿tocando?</b> <b>¿presionada?</b>',
     'Which key is the Bat listening for?':'¿Qué tecla está escuchando el Bate?',
     'The ball goes through the bat':'La pelota atraviesa el bate',
