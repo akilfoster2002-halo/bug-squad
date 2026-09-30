@@ -25,8 +25,12 @@ window.BUGS = (function(){
   const $ = s => document.querySelector(s);
   const T = (s,p) => (window.t ? t(s,p) : s);
 
-  const STARS_KEY='bug-squad.stars.v1', NAME_KEY='bug-squad.name',
-        LANG_KEY='bug-squad.lang', SOUND_KEY='bug-squad.sound', GAME_KEY='bug-squad.game';
+  /* NOTHING A STUDENT DOES IS KEPT. Stars, the game you are on and the
+     name you typed live only while the page is open — every visit starts
+     fresh from game 1. Only the language and sound settings are kept. */
+  const LANG_KEY='bug-squad.lang', SOUND_KEY='bug-squad.sound';
+  const OLD_KEYS=['bug-squad.stars.v1','bug-squad.name','bug-squad.game'];
+  let myName='';
   const teacher = typeof location!=='undefined' && /[?&]answer\b/.test(location.search);
   /* TEACHER MODE: the 🔑 button and the code 1234. It only unlocks answer
      buttons on this page — it keeps nothing secret, so it is a classroom
@@ -499,7 +503,9 @@ window.BUGS = (function(){
 
   let gi=0;                  // which game is on
   const kept={};             // a game's code while the student is away at another one
-  let stars={}; try{ stars=JSON.parse(localStorage.getItem(STARS_KEY)||'{}')||{}; }catch(e){ stars={}; }
+  let stars={};
+  /* earlier versions kept progress in the browser; clear it */
+  OLD_KEYS.forEach(k=>{ try{ localStorage.removeItem(k); }catch(e){} });
   const game = () => GAMES[gi];
 
   /* ==================================================== the scenery
@@ -604,7 +610,6 @@ window.BUGS = (function(){
     if(VM.running) VM.stopAll();
     if(on) remember();
     gi=Math.max(0, Math.min(GAMES.length-1, i));
-    try{ localStorage.setItem(GAME_KEY, String(gi)); }catch(e){}
     window.LEVELS=Object.assign(window.LEVELS||{}, { bugs:{ w:34, d:20 } });
     build();
     VM.enter(G.roomGroup);
@@ -670,8 +675,7 @@ window.BUGS = (function(){
     }
     fixedWas=key_;
     const done=now.every(Boolean);
-    if(done && !teach && !stars[game().id]){ stars[game().id]=true;
-      try{ localStorage.setItem(STARS_KEY, JSON.stringify(stars)); }catch(e){} }
+    if(done && !teach) stars[game().id]=true;
     if(done && !celebrated){ celebrated=true; SND.win();
       if(!teach && allStars() && !badgeShown){ badgeShown=true; setTimeout(badge, 900); } }
     if(!done) celebrated=false;
@@ -839,11 +843,11 @@ window.BUGS = (function(){
     return rows;
   }
   function download(){
-    let name=''; try{ name=localStorage.getItem(NAME_KEY)||''; }catch(e){}
+    let name=myName;
     const typed=prompt(T('Your name, for the top of the page:'), name);
     if(typed===null) return;
     name=typed.trim();
-    try{ localStorage.setItem(NAME_KEY, name); }catch(e){}
+    myName=name;
     const blob=new Blob([pdf(handIn(name))], { type:'application/pdf' });
     const a=document.createElement('a');
     const slug=(name||'student').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')
@@ -965,7 +969,7 @@ window.BUGS = (function(){
     return cv;
   }
   function badge(){
-    let name=''; try{ name=localStorage.getItem(NAME_KEY)||''; }catch(e){}
+    let name=myName;
     tourAt=-2;
     const el=$('#dnBrief .card'); if(!el) return;
     $('#dnBrief').classList.remove('hidden');
@@ -985,7 +989,7 @@ window.BUGS = (function(){
     $('#bsSave').onclick=()=>{
       const nm=inp.value.trim();
       if(!nm){ inp.focus(); inp.classList.add('need'); return; }
-      try{ localStorage.setItem(NAME_KEY, nm); }catch(e){}
+      myName=nm;
       drawBadge(nm).toBlob(b=>{
         const a=document.createElement('a');
         const slug=nm.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'student';
@@ -1092,7 +1096,7 @@ window.BUGS = (function(){
   function start(){
     G.room='bugs';
     VM.useScratch();
-    let g0=0; try{ g0=parseInt(localStorage.getItem(GAME_KEY),10)||0; }catch(e){}
+    const g0=0;
     let l='en'; try{ l=localStorage.getItem(LANG_KEY)||'en'; }catch(e){}
     window.LANG = l==='es' ? 'es' : 'en';
     load(g0);

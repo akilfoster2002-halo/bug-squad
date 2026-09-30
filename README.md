@@ -31,12 +31,13 @@ changes made for debugging:
   stood. Deleting a whole script (the ✕ on its `when` block) asks first.
 
 Code lasts until the page is refreshed, and each game keeps its own code while you visit the
-others. **↺** puts the current game back the way it started, bugs and all. The ⭐ stars, the game
-you were on, the language and the name for the PDF are remembered by the browser.
+others. **↺** puts the current game back the way it started, bugs and all. Nothing a student does is kept
+between visits: stars, the game they were on and their name last only while the page is open, and
+every visit starts fresh from game 1. Only the language and sound settings are remembered.
 **⤓ DOWNLOAD SCRIPT** saves the current game's code as a PDF to hand in, with the number of bugs
 fixed.
 
-**Completion badge:** once all six games have their ⭐, a card opens (and a 🏅 button stays under
+**Completion badge:** once all six games have their ⭐ (in one sitting — a refresh starts over), a card opens (and a 🏅 button stays under
 the bug list): the student types their name, sees the badge, and presses **⤓ Download badge**. It
 saves a PNG (`bug-squad-badge-<name>.png`) with their name, "Master Debugger", the six games and the
 date, ready to upload to Google Classroom (Add or create → File).
