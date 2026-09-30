@@ -13,8 +13,10 @@ watch what goes wrong, open the **BLOCKS** and fix it. The bug list under the sc
 | 5 | 🧱 Brick Smash | Sensing | `key a` instead of `left arrow`; the Ball bounces off `Brick` instead of `Bat`; a Brick breaks on `Bat` instead of `Ball` |
 | 6 | 🍄 Jump Bros | Jumping | the jump speed is minus; the gravity block is **missing** (students add it); the landing test is `>` instead of `<` |
 
-Every bug has a 💡 hint. Everything is in English and Spanish (🌐), and the block words stay
-English because they are the code.
+The screen stays quiet: a 4-card click-through to start, one card per game (icon, one-line rule,
+keys, ▶ Play), icon buttons, and the bugs as three 🐞 buttons — click one for a single line saying
+what is wrong, then 💡 for a one-line hint. Everything is in English and Spanish (ES / EN), and the
+block words stay English because they are the code.
 
 ## The editor
 

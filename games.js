@@ -122,7 +122,7 @@ window.BUGS = (function(){
   const GAMES=[
   /* ---------------------------------------------------- 1 INDENTATION */
   { id:'space', icon:'🚀', name:'Space Blaster', topic:'Indentation',
-    lesson:'A block <b>inside</b> <code>forever</code> or <code>repeat</code> runs again and again. A block <b>outside</b> runs only once. Drag blocks in or out of the loop to fix them.',
+    lesson:'Inside the loop = repeats. Outside = once.',
     world:{ stars:true },
     cast:[
       { name:'Ship',  shape:'space/ship',  x:0, y:-8 },
@@ -151,21 +151,21 @@ window.BUGS = (function(){
       };
     },
     bugs:[
-      { what:'The Ship only moves <b>right</b>. The ← key does nothing.',
-        hint:'Open the <b>Ship</b>. The <code>if key left arrow pressed</code> block is <b>outside</b> the <code>forever</code>, so it is checked only once. Drag it <b>inside</b> the <code>forever</code>.',
+      { what:'← does nothing',
+        hint:'<b>Ship</b>: drag <code>if key left arrow</code> into <code>forever</code>',
         ok:()=>{ const l=keyIfAll('Ship','left'); return l.length>0 && l.every(x=>inLoop(x.anc) && alone(x)); } },
-      { what:'The Laser jumps a little and stops. It never flies up.',
-        hint:'Open the <b>Laser</b>. The <code>repeat 40</code> is empty and <code>change y by 0.5</code> sits under it. Drag <code>change y by 0.5</code> <b>inside</b> the <code>repeat</code>.',
+      { what:'The laser won\'t fly',
+        hint:'<b>Laser</b>: drag <code>change y by 0.5</code> into <code>repeat</code>',
         ok:()=>all('Laser').some(x=>moves('y',1)(x.b) && inLoop(x.anc)) },
-      { what:'The Alien is invisible! It only blinks when you hit it.',
-        hint:'Open the <b>Alien</b>. <code>hide</code> is at the bottom of the <code>forever</code>, so the Alien hides every time. Drag <code>hide</code> <b>inside</b> the <code>if touching Laser</code>.',
+      { what:'The alien is invisible',
+        hint:'<b>Alien</b>: drag <code>hide</code> into <code>if touching Laser</code>',
         ok:()=>{ const h=all('Alien').filter(x=>x.b.op==='looks.hide');
           return h.length>0 && h.every(x=>x.anc.some(p=>p.op==='ctrl.if' && has(p.args.c, isTouch('Laser')))); } }
     ] },
 
   /* ------------------------------------------------------- 2 SIGNS */
   { id:'road', icon:'🐸', name:'Road Hopper', topic:'Plus and minus',
-    lesson:'The sign tells the direction. <code>change y by 1.5</code> goes <b>up</b>, <code>change y by -1.5</code> goes <b>down</b>. <code>change x by 1.5</code> goes <b>right</b>, <code>-1.5</code> goes <b>left</b>.',
+    lesson:'<b>+</b> up / right &nbsp; <b>−</b> down / left',
     world:{ road:true },
     cast:[
       { name:'Frog',  shape:'road/frog',  x:0,   y:-9 },
@@ -190,20 +190,20 @@ window.BUGS = (function(){
       };
     },
     bugs:[
-      { what:'Press ↑ and the Frog hops <b>down</b>.',
-        hint:'Open the <b>Frog</b>. In <code>when up arrow key pressed</code>, the number is <code>-1.5</code>. Up needs a <b>plus</b> number: make it <code>1.5</code>.',
+      { what:'↑ hops down',
+        hint:'<b>Frog</b>, when ↑: <code>-1.5</code> → <code>1.5</code>',
         ok:()=>{ const b=keyHat('Frog','up'); return b.some(moves('y',1)) && !b.some(moves('y',-1)); } },
-      { what:'Press ↓ and the Frog hops <b>up</b>.',
-        hint:'In <code>when down arrow key pressed</code>, down needs a <b>minus</b> number: make it <code>-1.5</code>.',
+      { what:'↓ hops up',
+        hint:'<b>Frog</b>, when ↓: <code>1.5</code> → <code>-1.5</code>',
         ok:()=>{ const b=keyHat('Frog','down'); return b.some(moves('y',-1)) && !b.some(moves('y',1)); } },
-      { what:'Press → and the Frog hops <b>left</b>.',
-        hint:'Look at <code>when left arrow key pressed</code>: left is <code>-1.5</code>. Right is the opposite, so <code>when right arrow key pressed</code> needs <code>1.5</code>.',
+      { what:'→ hops left',
+        hint:'<b>Frog</b>, when →: <code>-1.5</code> → <code>1.5</code>',
         ok:()=>{ const b=keyHat('Frog','right'); return b.some(moves('x',1)) && !b.some(moves('x',-1)); } }
     ] },
 
   /* --------------------------------------------------------- 3 X Y */
   { id:'maze', icon:'🟡', name:'Chomp', topic:'x and y',
-    lesson:'<b>x</b> is across ↔ (left and right). <b>y</b> is up and down ↕. Up and down keys need <code>y</code>. Left and right keys need <code>x</code>.',
+    lesson:'<b>x</b> ↔ &nbsp;&nbsp; <b>y</b> ↕',
     world:{ maze:true },
     cast:[
       { name:'Chomper', shape:'maze/chomp',  x:0,  y:-1 },
@@ -226,20 +226,20 @@ window.BUGS = (function(){
       };
     },
     bugs:[
-      { what:'Press ↑ and Chomper goes <b>right</b>, not up.',
-        hint:'Open <b>Chomper</b>. In <code>if key up arrow pressed</code>, the block says <code>change x</code>. Up is <b>y</b>: pick <code>y</code> in the menu.',
+      { what:'↑ goes right',
+        hint:'<b>Chomper</b>, if ↑: <code>x</code> → <code>y</code>',
         ok:()=>{ const f=keyIf('Chomper','up'); return f.some(x=>inside(x.b, moves('y',1))) && !f.some(x=>inside(x.b, b=>b.op==='motion.changeBy' && b.args.a==='x')); } },
-      { what:'Press ↓ and Chomper goes <b>left</b>, not down.',
-        hint:'In <code>if key down arrow pressed</code>, change <code>x</code> to <code>y</code>. Keep the <code>-0.2</code>: down is minus.',
+      { what:'↓ goes left',
+        hint:'<b>Chomper</b>, if ↓: <code>x</code> → <code>y</code>',
         ok:()=>{ const f=keyIf('Chomper','down'); return f.some(x=>inside(x.b, moves('y',-1))) && !f.some(x=>inside(x.b, b=>b.op==='motion.changeBy' && b.args.a==='x')); } },
-      { what:'Press → and Chomper goes <b>up</b>, not right.',
-        hint:'In <code>if key right arrow pressed</code>, the block says <code>change y</code>. Right is across, so it is <b>x</b>.',
+      { what:'→ goes up',
+        hint:'<b>Chomper</b>, if →: <code>y</code> → <code>x</code>',
         ok:()=>{ const f=keyIf('Chomper','right'); return f.some(x=>inside(x.b, moves('x',1))) && !f.some(x=>inside(x.b, b=>b.op==='motion.changeBy' && b.args.a==='y')); } }
     ] },
 
   /* ---------------------------------------------------- 4 OPERATORS */
   { id:'pong', icon:'🏓', name:'Paddle Pong', topic:'Less than, greater than',
-    lesson:'<code>&lt;</code> means <b>less than</b>, <code>&gt;</code> means <b>greater than</b>. The open mouth eats the bigger number: <code>3 &lt; 8</code>. <code>y position &gt; 8</code> is true near the <b>top</b>; <code>y position &lt; -9</code> is true near the <b>bottom</b>.',
+    lesson:'<b>&lt;</b> less than &nbsp; <b>&gt;</b> greater than',
     world:{ court:true },
     cast:[
       { name:'Ball',   shape:'court/ball',   x:0,   y:0 },
@@ -262,18 +262,18 @@ window.BUGS = (function(){
       };
     },
     bugs:[
-      { what:'The Ball gets stuck at the top and shakes.',
-        hint:'Open the <b>Ball</b>. <code>if y position &gt; -9</code> is true almost everywhere! The bottom test needs <b>less than</b>: <code>y position &lt; -9</code>.',
+      { what:'The ball shakes at the top',
+        hint:'<b>Ball</b>: <code>y &gt; -9</code> → <code>y &lt; -9</code>',
         ok:()=>{ const f=ifs('Ball');
           return f.some(x=>side(x.b.args.c,'y').some(s=>s.s==='<' && s.n<0) && inside(x.b, sets('vy',1))) &&
                 !f.some(x=>side(x.b.args.c,'y').some(s=>s.s==='>' && s.n<0) && inside(x.b, sets('vy',1))); } },
-      { what:'The Ball flies straight to the left every time.',
-        hint:'In the <b>Ball</b>, <code>if x position &lt; 15</code> is true almost everywhere. The right wall is where x is <b>greater than</b> 15: <code>x position &gt; 15</code>.',
+      { what:'The ball always flies left',
+        hint:'<b>Ball</b>: <code>x &lt; 15</code> → <code>x &gt; 15</code>',
         ok:()=>{ const f=ifs('Ball');
           return f.some(x=>side(x.b.args.c,'x').some(s=>s.s==='>' && s.n>0) && inside(x.b, sets('vx',-1))) &&
                 !f.some(x=>side(x.b.args.c,'x').some(s=>s.s==='<' && s.n>0) && inside(x.b, sets('vx',-1))); } },
-      { what:'The Paddle will not move up.',
-        hint:'Open the <b>Paddle</b>. It can go up only while <code>y position &gt; 6</code> — but it starts at -1.5! It should go up while it is <b>less than</b> 6: <code>y position &lt; 6</code>.',
+      { what:'The paddle won\'t go up',
+        hint:'<b>Paddle</b>: <code>y &gt; 6</code> → <code>y &lt; 6</code>',
         ok:()=>{ const f=keyIf('Paddle','up');
           return f.some(x=>side(x.b.args.c,'y').some(s=>s.s==='<' && s.n>0) && inside(x.b, moves('y',1))) &&
                 !f.some(x=>side(x.b.args.c,'y').some(s=>s.s==='>' && s.n>0)); } }
@@ -281,7 +281,7 @@ window.BUGS = (function(){
 
   /* ------------------------------------------------------ 5 SENSING */
   { id:'bricks', icon:'🧱', name:'Brick Smash', topic:'Sensing',
-    lesson:'Sensing blocks ask a question: <code>touching Ball?</code>, <code>key left arrow pressed?</code>. The answer is yes or no. If a sensing block asks about the wrong thing, the game does the wrong thing.',
+    lesson:'Sensing asks: <b>touching?</b> <b>pressed?</b>',
     world:{ box:true },
     cast:[
       { name:'Bat',   shape:'court/bat',   x:0,   y:-8 },
@@ -310,20 +310,20 @@ window.BUGS = (function(){
       };
     },
     bugs:[
-      { what:'The ← key does not move the Bat.',
-        hint:'Open the <b>Bat</b>. It asks <code>key a pressed?</code>. Pick <code>left arrow</code> in the menu.',
+      { what:'← does nothing',
+        hint:'<b>Bat</b>: key <code>a</code> → <code>left arrow</code>',
         ok:()=>keyIf('Bat','left').some(x=>inside(x.b, moves('x',-1))) },
-      { what:'The Ball goes right through the Bat.',
-        hint:'Open the <b>Ball</b>. The bounce asks <code>touching Brick?</code>. It should ask <code>touching Bat?</code>.',
+      { what:'The ball goes through the bat',
+        hint:'<b>Ball</b>: <code>touching Brick</code> → <code>Bat</code>',
         ok:()=>ifs('Ball').some(x=>has(x.b.args.c, isTouch('Bat')) && inside(x.b, sets('vy',1))) },
-      { what:'The Ball hits the bricks, but they never break.',
-        hint:'Open the <b>Brick</b>. In <code>when I start as a clone</code>, it asks <code>touching Bat?</code>. A brick breaks when the <b>Ball</b> touches it.',
+      { what:'Bricks never break',
+        hint:'<b>Brick</b>: <code>touching Bat</code> → <code>Ball</code>',
         ok:()=>ifs('Brick').some(x=>has(x.b.args.c, isTouch('Ball'))) }
     ] },
 
   /* ------------------------------------------------------ 6 JUMPING */
   { id:'plat', icon:'🍄', name:'Jump Bros', topic:'Jumping',
-    lesson:'A jump is three rules. <b>Jump:</b> SPACE sets the speed <code>vy</code> to a <b>plus</b> number. <b>Gravity:</b> every time round the loop, <code>change vy by -0.025</code> pulls you down. <b>Land:</b> <code>if y position &lt; 0</code>, go back to the ground.',
+    lesson:'Jump ↑ &nbsp; Fall ↓ &nbsp; Land ▁',
     world:{ ground:true },
     cast:[
       { name:'Hero',     shape:'plat/hero',   x:-13, y:0 },
@@ -348,14 +348,14 @@ window.BUGS = (function(){
       };
     },
     bugs:[
-      { what:'Press SPACE and the Hero sinks <b>into</b> the ground.',
-        hint:'Open the <b>Hero</b>. <code>if key space pressed</code> sets <code>vy</code> to <code>-0.5</code>: minus is down. A jump goes up: <code>0.5</code>.',
+      { what:'SPACE sinks the hero',
+        hint:'<b>Hero</b>: <code>vy</code> <code>-0.5</code> → <code>0.5</code>',
         ok:()=>{ const f=keyIf('Hero','space'); return f.some(x=>inside(x.b, sets('vy',1))) && !f.some(x=>inside(x.b, sets('vy',-1))); } },
-      { what:'There is no gravity. Nothing pulls the Hero back down.',
-        hint:'A block is <b>missing</b>. From <b>Variables</b>, drag <code>change vy by</code> into the Hero\'s <code>forever</code>, above <code>change y by vy</code>, and make it <code>-0.025</code>.',
+      { what:'No gravity',
+        hint:'Add <code>change vy by -0.025</code> into <b>Hero</b>\'s <code>forever</code>',
         ok:()=>all('Hero').some(x=>x.b.op==='data.change' && x.b.args.v==='vy' && num(x.b.args.n)<0 && inLoop(x.anc)) },
-      { what:'The Hero never leaves the ground (or falls through it).',
-        hint:'The landing test says <code>if y position &gt; 0</code> — that is <b>every jump</b>! You land when you go <b>below</b> the ground: <code>y position &lt; 0</code>.',
+      { what:'The hero can\'t jump',
+        hint:'<b>Hero</b>: <code>y &gt; 0</code> → <code>y &lt; 0</code>',
         ok:()=>{ const f=ifs('Hero');
           const lands=x=>inside(x.b, b=>b.op==='motion.setTo' && b.args.a==='y');
           return f.some(x=>side(x.b.args.c,'y').some(s=>s.s==='<' && s.n<=0.5) && lands(x)) &&
@@ -381,6 +381,12 @@ window.BUGS = (function(){
   /* ============================================================ words */
   Object.assign(window.ES = window.ES || {}, {
     'BUG SQUAD':'ESCUADRÓN DE BICHOS',
+    'Six arcade games. All broken.':'Seis juegos de arcade. Todos rotos.',
+    'Run it':'Juégalo','Watch what goes wrong.':'Mira qué sale mal.',
+    'Open the blocks':'Abre los bloques','Drag, click, fix.':'Arrastra, haz clic, arregla.',
+    'Find the bugs':'Encuentra los bichos','3 in every game. 💡 if stuck.':'3 en cada juego. 💡 si te atoras.',
+    'Start':'Empezar','Play':'Jugar','How to play':'Cómo jugar','Start this game over':'Empezar este juego de nuevo',
+    'Download my code':'Descargar mi código','Teacher view':'Vista del maestro',
     'FIX THE BROKEN ARCADE GAMES':'ARREGLA LOS JUEGOS DE ARCADE ROTOS',
     'Six classic games, and every one has <b>3 bugs</b> in its code. Press <b>RUN</b> and watch what goes wrong. Then open the <b>BLOCKS</b> and fix it. The bug list at the bottom turns 🐞 into ✅ when a bug is fixed.':
       'Seis juegos clásicos, y cada uno tiene <b>3 bichos</b> (errores) en su código. Presiona <b>JUGAR</b> y mira qué sale mal. Luego abre los <b>BLOQUES</b> y arréglalo. La lista de abajo cambia 🐞 por ✅ cuando arreglas un error.',
@@ -418,74 +424,48 @@ window.BUGS = (function(){
     'Try a different browser, or ask a teacher.':'Prueba otro navegador o pregúntale al maestro.',
     'Lesson':'Lección','score':'puntos',
     'Delete this whole script, and every block under it?':'¿Borrar todo este guion y todos los bloques de abajo?',
-    /* the six lessons */
-    'A block <b>inside</b> <code>forever</code> or <code>repeat</code> runs again and again. A block <b>outside</b> runs only once. Drag blocks in or out of the loop to fix them.':
-      'Un bloque <b>dentro</b> de <code>forever</code> o <code>repeat</code> se repite una y otra vez. Un bloque <b>afuera</b> se ejecuta una sola vez. Arrastra bloques hacia dentro o fuera del bucle para arreglarlos.',
-    'The sign tells the direction. <code>change y by 1.5</code> goes <b>up</b>, <code>change y by -1.5</code> goes <b>down</b>. <code>change x by 1.5</code> goes <b>right</b>, <code>-1.5</code> goes <b>left</b>.':
-      'El signo dice la dirección. <code>change y by 1.5</code> va <b>arriba</b>, <code>change y by -1.5</code> va <b>abajo</b>. <code>change x by 1.5</code> va a la <b>derecha</b>, <code>-1.5</code> va a la <b>izquierda</b>.',
-    '<b>x</b> is across ↔ (left and right). <b>y</b> is up and down ↕. Up and down keys need <code>y</code>. Left and right keys need <code>x</code>.':
-      '<b>x</b> es de lado a lado ↔ (izquierda y derecha). <b>y</b> es arriba y abajo ↕. Las teclas de arriba y abajo necesitan <code>y</code>. Las de izquierda y derecha necesitan <code>x</code>.',
-    '<code>&lt;</code> means <b>less than</b>, <code>&gt;</code> means <b>greater than</b>. The open mouth eats the bigger number: <code>3 &lt; 8</code>. <code>y position &gt; 8</code> is true near the <b>top</b>; <code>y position &lt; -9</code> is true near the <b>bottom</b>.':
-      '<code>&lt;</code> significa <b>menor que</b>, <code>&gt;</code> significa <b>mayor que</b>. La boca abierta se come el número más grande: <code>3 &lt; 8</code>. <code>y position &gt; 8</code> es verdad cerca de <b>arriba</b>; <code>y position &lt; -9</code> es verdad cerca de <b>abajo</b>.',
-    'Sensing blocks ask a question: <code>touching Ball?</code>, <code>key left arrow pressed?</code>. The answer is yes or no. If a sensing block asks about the wrong thing, the game does the wrong thing.':
-      'Los bloques de sensores hacen una pregunta: <code>touching Ball?</code> (¿tocando la pelota?), <code>key left arrow pressed?</code> (¿flecha izquierda presionada?). La respuesta es sí o no. Si el sensor pregunta por la cosa equivocada, el juego hace lo equivocado.',
-    'A jump is three rules. <b>Jump:</b> SPACE sets the speed <code>vy</code> to a <b>plus</b> number. <b>Gravity:</b> every time round the loop, <code>change vy by -0.025</code> pulls you down. <b>Land:</b> <code>if y position &lt; 0</code>, go back to the ground.':
-      'Un salto son tres reglas. <b>Saltar:</b> SPACE pone la velocidad <code>vy</code> en un número <b>positivo</b>. <b>Gravedad:</b> cada vuelta del bucle, <code>change vy by -0.025</code> te jala hacia abajo. <b>Aterrizar:</b> <code>if y position &lt; 0</code>, vuelve al suelo.',
-    /* the bugs */
-    'The Ship only moves <b>right</b>. The ← key does nothing.':'La Nave solo se mueve a la <b>derecha</b>. La tecla ← no hace nada.',
-    'Open the <b>Ship</b>. The <code>if key left arrow pressed</code> block is <b>outside</b> the <code>forever</code>, so it is checked only once. Drag it <b>inside</b> the <code>forever</code>.':
-      'Abre la <b>Ship</b> (nave). El bloque <code>if key left arrow pressed</code> está <b>afuera</b> del <code>forever</code>, así que se revisa una sola vez. Arrástralo <b>adentro</b> del <code>forever</code>.',
-    'The Laser jumps a little and stops. It never flies up.':'El Láser salta un poquito y se detiene. Nunca vuela hacia arriba.',
-    'Open the <b>Laser</b>. The <code>repeat 40</code> is empty and <code>change y by 0.5</code> sits under it. Drag <code>change y by 0.5</code> <b>inside</b> the <code>repeat</code>.':
-      'Abre el <b>Laser</b>. El <code>repeat 40</code> está vacío y <code>change y by 0.5</code> está debajo. Arrastra <code>change y by 0.5</code> <b>adentro</b> del <code>repeat</code>.',
-    'The Alien is invisible! It only blinks when you hit it.':'¡El Alien es invisible! Solo parpadea cuando le pegas.',
-    'Open the <b>Alien</b>. <code>hide</code> is at the bottom of the <code>forever</code>, so the Alien hides every time. Drag <code>hide</code> <b>inside</b> the <code>if touching Laser</code>.':
-      'Abre el <b>Alien</b>. <code>hide</code> (esconder) está al final del <code>forever</code>, así que el Alien se esconde siempre. Arrastra <code>hide</code> <b>adentro</b> del <code>if touching Laser</code>.',
-    'Press ↑ and the Frog hops <b>down</b>.':'Presiona ↑ y la Rana salta hacia <b>abajo</b>.',
-    'Open the <b>Frog</b>. In <code>when up arrow key pressed</code>, the number is <code>-1.5</code>. Up needs a <b>plus</b> number: make it <code>1.5</code>.':
-      'Abre la <b>Frog</b> (rana). En <code>when up arrow key pressed</code>, el número es <code>-1.5</code>. Arriba necesita un número <b>positivo</b>: ponle <code>1.5</code>.',
-    'Press ↓ and the Frog hops <b>up</b>.':'Presiona ↓ y la Rana salta hacia <b>arriba</b>.',
-    'In <code>when down arrow key pressed</code>, down needs a <b>minus</b> number: make it <code>-1.5</code>.':
-      'En <code>when down arrow key pressed</code>, abajo necesita un número <b>negativo</b>: ponle <code>-1.5</code>.',
-    'Press → and the Frog hops <b>left</b>.':'Presiona → y la Rana salta a la <b>izquierda</b>.',
-    'Look at <code>when left arrow key pressed</code>: left is <code>-1.5</code>. Right is the opposite, so <code>when right arrow key pressed</code> needs <code>1.5</code>.':
-      'Mira <code>when left arrow key pressed</code>: izquierda es <code>-1.5</code>. Derecha es lo contrario, así que <code>when right arrow key pressed</code> necesita <code>1.5</code>.',
-    'Press ↑ and Chomper goes <b>right</b>, not up.':'Presiona ↑ y Chomper va a la <b>derecha</b>, no arriba.',
-    'Open <b>Chomper</b>. In <code>if key up arrow pressed</code>, the block says <code>change x</code>. Up is <b>y</b>: pick <code>y</code> in the menu.':
-      'Abre <b>Chomper</b>. En <code>if key up arrow pressed</code>, el bloque dice <code>change x</code>. Arriba es <b>y</b>: escoge <code>y</code> en el menú.',
-    'Press ↓ and Chomper goes <b>left</b>, not down.':'Presiona ↓ y Chomper va a la <b>izquierda</b>, no abajo.',
-    'In <code>if key down arrow pressed</code>, change <code>x</code> to <code>y</code>. Keep the <code>-0.2</code>: down is minus.':
-      'En <code>if key down arrow pressed</code>, cambia <code>x</code> por <code>y</code>. Deja el <code>-0.2</code>: abajo es negativo.',
-    'Press → and Chomper goes <b>up</b>, not right.':'Presiona → y Chomper va <b>arriba</b>, no a la derecha.',
-    'In <code>if key right arrow pressed</code>, the block says <code>change y</code>. Right is across, so it is <b>x</b>.':
-      'En <code>if key right arrow pressed</code>, el bloque dice <code>change y</code>. Derecha es de lado a lado, así que es <b>x</b>.',
-    'The Ball gets stuck at the top and shakes.':'La Pelota se queda atorada arriba y tiembla.',
-    'Open the <b>Ball</b>. <code>if y position &gt; -9</code> is true almost everywhere! The bottom test needs <b>less than</b>: <code>y position &lt; -9</code>.':
-      'Abre la <b>Ball</b> (pelota). ¡<code>if y position &gt; -9</code> es verdad casi en todas partes! La prueba de abajo necesita <b>menor que</b>: <code>y position &lt; -9</code>.',
-    'The Ball flies straight to the left every time.':'La Pelota siempre vuela directo a la izquierda.',
-    'In the <b>Ball</b>, <code>if x position &lt; 15</code> is true almost everywhere. The right wall is where x is <b>greater than</b> 15: <code>x position &gt; 15</code>.':
-      'En la <b>Ball</b>, <code>if x position &lt; 15</code> es verdad casi en todas partes. La pared derecha es donde x es <b>mayor que</b> 15: <code>x position &gt; 15</code>.',
-    'The Paddle will not move up.':'La Paleta no se mueve hacia arriba.',
-    'Open the <b>Paddle</b>. It can go up only while <code>y position &gt; 6</code> — but it starts at -1.5! It should go up while it is <b>less than</b> 6: <code>y position &lt; 6</code>.':
-      'Abre la <b>Paddle</b> (paleta). Solo puede subir mientras <code>y position &gt; 6</code> — ¡pero empieza en -1.5! Debe subir mientras sea <b>menor que</b> 6: <code>y position &lt; 6</code>.',
-    'The ← key does not move the Bat.':'La tecla ← no mueve el Bate.',
-    'Open the <b>Bat</b>. It asks <code>key a pressed?</code>. Pick <code>left arrow</code> in the menu.':
-      'Abre el <b>Bat</b> (bate). Pregunta <code>key a pressed?</code>. Escoge <code>left arrow</code> en el menú.',
-    'The Ball goes right through the Bat.':'La Pelota atraviesa el Bate.',
-    'Open the <b>Ball</b>. The bounce asks <code>touching Brick?</code>. It should ask <code>touching Bat?</code>.':
-      'Abre la <b>Ball</b>. El rebote pregunta <code>touching Brick?</code>. Debe preguntar <code>touching Bat?</code>.',
-    'The Ball hits the bricks, but they never break.':'La Pelota golpea los ladrillos, pero nunca se rompen.',
-    'Open the <b>Brick</b>. In <code>when I start as a clone</code>, it asks <code>touching Bat?</code>. A brick breaks when the <b>Ball</b> touches it.':
-      'Abre el <b>Brick</b> (ladrillo). En <code>when I start as a clone</code>, pregunta <code>touching Bat?</code>. Un ladrillo se rompe cuando la <b>Ball</b> lo toca.',
-    'Press SPACE and the Hero sinks <b>into</b> the ground.':'Presiona SPACE y el Héroe se hunde <b>en</b> el suelo.',
-    'Open the <b>Hero</b>. <code>if key space pressed</code> sets <code>vy</code> to <code>-0.5</code>: minus is down. A jump goes up: <code>0.5</code>.':
-      'Abre el <b>Hero</b> (héroe). <code>if key space pressed</code> pone <code>vy</code> en <code>-0.5</code>: negativo es abajo. Un salto va arriba: <code>0.5</code>.',
-    'There is no gravity. Nothing pulls the Hero back down.':'No hay gravedad. Nada jala al Héroe hacia abajo.',
-    'A block is <b>missing</b>. From <b>Variables</b>, drag <code>change vy by</code> into the Hero\'s <code>forever</code>, above <code>change y by vy</code>, and make it <code>-0.025</code>.':
-      'Falta un bloque. De <b>Variables</b>, arrastra <code>change vy by</code> adentro del <code>forever</code> del Hero, arriba de <code>change y by vy</code>, y ponle <code>-0.025</code>.',
-    'The Hero never leaves the ground (or falls through it).':'El Héroe nunca deja el suelo (o se cae a través de él).',
-    'The landing test says <code>if y position &gt; 0</code> — that is <b>every jump</b>! You land when you go <b>below</b> the ground: <code>y position &lt; 0</code>.':
-      'La prueba de aterrizar dice <code>if y position &gt; 0</code> — ¡eso es <b>cada salto</b>! Aterrizas cuando vas <b>debajo</b> del suelo: <code>y position &lt; 0</code>.'
+    /* the six lessons and eighteen bugs */
+    'Inside the loop = repeats. Outside = once.':'Dentro del bucle = se repite. Afuera = una vez.',
+    '← does nothing':'← no hace nada',
+    '<b>Ship</b>: drag <code>if key left arrow</code> into <code>forever</code>':'<b>Ship</b>: arrastra <code>if key left arrow</code> dentro de <code>forever</code>',
+    'The laser won\'t fly':'El láser no vuela',
+    '<b>Laser</b>: drag <code>change y by 0.5</code> into <code>repeat</code>':'<b>Laser</b>: arrastra <code>change y by 0.5</code> dentro de <code>repeat</code>',
+    'The alien is invisible':'El alien es invisible',
+    '<b>Alien</b>: drag <code>hide</code> into <code>if touching Laser</code>':'<b>Alien</b>: arrastra <code>hide</code> dentro de <code>if touching Laser</code>',
+    '<b>+</b> up / right &nbsp; <b>−</b> down / left':'<b>+</b> arriba / derecha &nbsp; <b>−</b> abajo / izquierda',
+    '↑ hops down':'↑ salta abajo',
+    '<b>Frog</b>, when ↑: <code>-1.5</code> → <code>1.5</code>':'<b>Frog</b>, con ↑: <code>-1.5</code> → <code>1.5</code>',
+    '↓ hops up':'↓ salta arriba',
+    '<b>Frog</b>, when ↓: <code>1.5</code> → <code>-1.5</code>':'<b>Frog</b>, con ↓: <code>1.5</code> → <code>-1.5</code>',
+    '→ hops left':'→ salta a la izquierda',
+    '<b>Frog</b>, when →: <code>-1.5</code> → <code>1.5</code>':'<b>Frog</b>, con →: <code>-1.5</code> → <code>1.5</code>',
+    '<b>x</b> ↔ &nbsp;&nbsp; <b>y</b> ↕':'<b>x</b> ↔ &nbsp;&nbsp; <b>y</b> ↕',
+    '↑ goes right':'↑ va a la derecha',
+    '<b>Chomper</b>, if ↑: <code>x</code> → <code>y</code>':'<b>Chomper</b>, si ↑: <code>x</code> → <code>y</code>',
+    '↓ goes left':'↓ va a la izquierda',
+    '<b>Chomper</b>, if ↓: <code>x</code> → <code>y</code>':'<b>Chomper</b>, si ↓: <code>x</code> → <code>y</code>',
+    '→ goes up':'→ va arriba',
+    '<b>Chomper</b>, if →: <code>y</code> → <code>x</code>':'<b>Chomper</b>, si →: <code>y</code> → <code>x</code>',
+    '<b>&lt;</b> less than &nbsp; <b>&gt;</b> greater than':'<b>&lt;</b> menor que &nbsp; <b>&gt;</b> mayor que',
+    'The ball shakes at the top':'La pelota tiembla arriba',
+    '<b>Ball</b>: <code>y &gt; -9</code> → <code>y &lt; -9</code>':'<b>Ball</b>: <code>y &gt; -9</code> → <code>y &lt; -9</code>',
+    'The ball always flies left':'La pelota siempre va a la izquierda',
+    '<b>Ball</b>: <code>x &lt; 15</code> → <code>x &gt; 15</code>':'<b>Ball</b>: <code>x &lt; 15</code> → <code>x &gt; 15</code>',
+    'The paddle won\'t go up':'La paleta no sube',
+    '<b>Paddle</b>: <code>y &gt; 6</code> → <code>y &lt; 6</code>':'<b>Paddle</b>: <code>y &gt; 6</code> → <code>y &lt; 6</code>',
+    'Sensing asks: <b>touching?</b> <b>pressed?</b>':'Los sensores preguntan: <b>¿tocando?</b> <b>¿presionada?</b>',
+    '<b>Bat</b>: key <code>a</code> → <code>left arrow</code>':'<b>Bat</b>: tecla <code>a</code> → <code>left arrow</code>',
+    'The ball goes through the bat':'La pelota atraviesa el bate',
+    '<b>Ball</b>: <code>touching Brick</code> → <code>Bat</code>':'<b>Ball</b>: <code>touching Brick</code> → <code>Bat</code>',
+    'Bricks never break':'Los ladrillos no se rompen',
+    '<b>Brick</b>: <code>touching Bat</code> → <code>Ball</code>':'<b>Brick</b>: <code>touching Bat</code> → <code>Ball</code>',
+    'Jump ↑ &nbsp; Fall ↓ &nbsp; Land ▁':'Salta ↑ &nbsp; Cae ↓ &nbsp; Aterriza ▁',
+    'SPACE sinks the hero':'SPACE hunde al héroe',
+    '<b>Hero</b>: <code>vy</code> <code>-0.5</code> → <code>0.5</code>':'<b>Hero</b>: <code>vy</code> <code>-0.5</code> → <code>0.5</code>',
+    'No gravity':'No hay gravedad',
+    'Add <code>change vy by -0.025</code> into <b>Hero</b>\'s <code>forever</code>':'Agrega <code>change vy by -0.025</code> dentro del <code>forever</code> del <b>Hero</b>',
+    'The hero can\'t jump':'El héroe no puede saltar',
+    '<b>Hero</b>: <code>y &gt; 0</code> → <code>y &lt; 0</code>':'<b>Hero</b>: <code>y &gt; 0</code> → <code>y &lt; 0</code>'
   });
 
   /* ==================================================== the objects */
@@ -641,38 +621,39 @@ window.BUGS = (function(){
     bugPanel(now);
     levels();
   }
+  /* THE BUGS ARE THREE BUTTONS. Nothing to read until you ask: click a
+     bug and one line says what is wrong; click 💡 and one line says where. */
+  let openBug=-1;
   function bugPanel(now){
     const el=$('#bsBugs'); if(!el) return;
     now = now || status();
-    const g=game(), left=now.filter(x=>!x).length;
-    const done=!left;
-    const last=gi===GAMES.length-1, allDone=GAMES.every(x=>stars[x.id]);
+    const g=game(), done=now.every(Boolean), last=gi===GAMES.length-1;
+    if(openBug>=0 && now[openBug]) openBug=-1;
+    const b=openBug>=0 ? g.bugs[openBug] : null;
     const html=`
-      <div class="bs-head">
-        <b>${done?'🏆 '+T('GAME FIXED!'):'🐞 '+T('BUGS')+' · '+T('{n} left',{ n:left })}</b>
-        <span class="bs-topic">${T('Lesson')}: ${T(g.topic)}</span>
-        ${done && !last ? `<button class="dn-btn bs-next" id="bsNext">${T('Next game ▶')}</button>`:''}
+      <div class="bs-row">
+        ${g.bugs.map((x,i)=>`<button class="bs-bug${now[i]?' ok':''}${i===openBug?' on':''}" data-bug="${i}"
+            ${now[i]?'disabled':''}>${now[i]?'✅':'🐞'}</button>`).join('')}
+        ${done ? `<b class="bs-won">🏆</b>${last?'':`<button class="dn-btn bs-next" id="bsNext">▶</button>`}` : ''}
       </div>
-      ${done && allDone ? `<p class="bs-all">⭐ ${T('You fixed all 18 bugs. You are a real debugger!')}</p>`:''}
-      <ol class="bs-list">${g.bugs.map((b,i)=>`
-        <li class="${now[i]?'ok':''}">
-          <span class="bs-ico">${now[i]?'✅':'🐞'}</span>
-          <span class="bs-what">${T(b.what)}${hints[i]&&!now[i]?`<small class="bs-hint">💡 ${T(b.hint)}</small>`:''}</span>
-          ${now[i]?'':`<button class="bs-hbtn" data-hint="${i}" title="${T('Hint')}">💡</button>`}
-        </li>`).join('')}</ol>`;
+      ${b ? `<div class="bs-pop"><span>${T(b.what)}</span>
+          ${hints[openBug] ? `<small>💡 ${T(b.hint)}</small>`
+                           : `<button class="bs-hbtn" id="bsHint" title="${T('Hint')}">💡</button>`}</div>` : ''}`;
     if(el.dataset.html!==html){
       el.dataset.html=html; el.innerHTML=html;
-      el.querySelectorAll('[data-hint]').forEach(b=>b.onclick=()=>{ const i=+b.dataset.hint; hints[i]=!hints[i]; bugPanel(); });
-      const nx=$('#bsNext'); if(nx) nx.onclick=()=>load(gi+1);
+      el.querySelectorAll('[data-bug]').forEach(x=>x.onclick=()=>{ const i=+x.dataset.bug;
+        openBug = openBug===i ? -1 : i; bugPanel(); });
+      const h=$('#bsHint'); if(h) h.onclick=()=>{ hints[openBug]=true; bugPanel(); };
+      const nx=$('#bsNext'); if(nx) nx.onclick=()=>{ load(gi+1); intro(); };
     }
   }
   function levels(){
     const el=$('#bsLevels'); if(!el) return;
     const html=GAMES.map((g,i)=>`<button class="bs-lvl${i===gi?' on':''}${stars[g.id]?' star':''}" data-g="${i}"
-        title="${T(g.name)} — ${T(g.topic)}">${i+1} ${g.icon}${stars[g.id]?' ⭐':''}</button>`).join('');
+        title="${T(g.name)}">${g.icon}</button>`).join('');
     if(el.dataset.html!==html){
       el.dataset.html=html; el.innerHTML=html;
-      el.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{ b.blur(); load(+b.dataset.g); });
+      el.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{ b.blur(); load(+b.dataset.g); intro(); });
     }
   }
 
@@ -799,7 +780,7 @@ window.BUGS = (function(){
   }
   function message(){
     const el=$('#dnMsg'); if(!el) return;
-    const want = VM.running ? '' : `<small class="dn-start">${game().icon} <b>${T(game().name)}</b> — ${T('Press <b>RUN</b> to play')}</small>`;
+    const want = VM.running ? '' : `<small class="dn-start">▶ ${T('RUN')}</small>`;
     if(el.dataset.html!==want){ el.dataset.html=want; el.innerHTML=want; }
     el.classList.toggle('hidden', !want);
   }
@@ -811,39 +792,57 @@ window.BUGS = (function(){
   }
   const LANG_BTN = () => window.LANG==='es' ? '🌐 English' : '🌐 Español';
   function words(){
+    const tip=(s,h)=>{ const e=$(s); if(e) e.title=T(h); };
     const set=(s,h)=>{ const e=$(s); if(e) e.innerHTML=h; };
-    set('#dnOpen', '▦ '+T('BLOCKS')+' <small>C</small>');
-    set('#dnLang', LANG_BTN());
-    const snd=$('#dnSound');
-    if(snd){ snd.textContent = SND.on ? '🔊' : '🔇'; snd.title = T(SND.on ? 'Sound on' : 'Sound off'); }
-    const help=$('#dnHelp'); if(help) help.title=T('Show the instructions again');
-    const rst=$('#dnReset'); if(rst) rst.title=T('Put this game\'s code back the way it was');
-    set('#dnPdf', '⤓ '+T('DOWNLOAD SCRIPT'));
-    const dl=$('#dnPdf'); if(dl) dl.title=T('Save the code of this game as a PDF, to hand in');
-    const tb=$('#dnTeacher'); if(tb) tb.textContent=T('Teacher view — answer key loaded');
-    const ks=$('#bsKeys');
-    if(ks) ks.innerHTML=`<p class="bs-lesson">${T(game().lesson)}</p><div class="bs-k">${game().keys.map(([k,w])=>`<span><kbd>${k}</kbd> ${T(w)}</span>`).join('')}</div>`;
-    brief(); message(); buttons(); fixedWas=null; bugPanel(); levels();
+    set('#dnOpen', '▦ '+T('BLOCKS'));
+    const snd=$('#dnSound'); if(snd) snd.textContent = SND.on ? '🔊' : '🔇';
+    tip('#dnSound', SND.on ? 'Sound on' : 'Sound off');
+    set('#dnLang', window.LANG==='es' ? 'EN' : 'ES');
+    tip('#dnLang', window.LANG==='es' ? 'English' : 'Español');
+    tip('#dnHelp','How to play'); tip('#dnReset','Start this game over');
+    tip('#dnPdf','Download my code');
+    const tb=$('#dnTeacher'); if(tb) tb.textContent=T('Teacher view');
+    if(briefOpen()) (tourAt<0 ? intro : tour)(tourAt<0 ? undefined : tourAt);
+    message(); buttons(); fixedWas=null; bugPanel(); levels();
     if(window.CODER && CODER.open) CODER.render();
   }
-  function brief(){
+  /* THE TOUR: one big picture and one line a card, clicked through */
+  const TOUR=[
+    ['🕹️','BUG SQUAD','Six arcade games. All broken.'],
+    ['▶','Run it','Watch what goes wrong.'],
+    ['▦','Open the blocks','Drag, click, fix.'],
+    ['🐞','Find the bugs','3 in every game. 💡 if stuck.']
+  ];
+  let tourAt=-1;
+  const langBtn = () => `<button class="bs-lang" id="dnLang2">${window.LANG==='es'?'EN':'ES'}</button>`;
+  function tour(i){
+    tourAt=i;
     const el=$('#dnBrief .card'); if(!el) return;
-    el.innerHTML=`
-      <div class="dn-lang"><button class="dn-btn" id="dnLang2">${LANG_BTN()}</button></div>
-      <h1>🐞 ${T('BUG SQUAD')}</h1>
-      <p class="kick">${T('FIX THE BROKEN ARCADE GAMES')}</p>
-      <p>${T('Six classic games, and every one has <b>3 bugs</b> in its code. Press <b>RUN</b> and watch what goes wrong. Then open the <b>BLOCKS</b> and fix it. The bug list at the bottom turns 🐞 into ✅ when a bug is fixed.')}</p>
-      <p class="kick">${T('HOW TO FIX')}</p>
-      <ol>
-        <li>${T('<b>Drag</b> a block anywhere: between two blocks, into a loop, out of a loop.')}</li>
-        <li>${T('<b>Change</b> a number, a letter or a menu by clicking it.')}</li>
-        <li>${T('<b>Take a block away</b> with its ✕, or drag it back onto the shelf. Only that block goes — the blocks inside it stay.')}</li>
-        <li>${T('<b>Stuck?</b> Press 💡 next to a bug for a hint.')}</li>
-      </ol>
-      <p class="kick">${T('THE GAMES')}</p>
-      <div class="bs-games">${GAMES.map((g,i)=>`<div><b>${i+1} ${g.icon} ${T(g.name)}</b><span>${T(g.topic)}</span></div>`).join('')}</div>
-      <div class="row"><button class="btn good" id="dnGo">${T('Start fixing ▶')}</button></div>`;
-    $('#dnGo').onclick=()=>{ closeBrief(); };
+    const [big,head,line]=TOUR[i], last=i===TOUR.length-1;
+    $('#dnBrief').classList.remove('hidden');
+    el.innerHTML=`${langBtn()}
+      <div class="bs-big">${big}</div>
+      <h1>${T(head)}</h1>
+      <p class="bs-line">${T(line)}</p>
+      <div class="bs-dots">${TOUR.map((_,j)=>`<i class="${j===i?'on':''}"></i>`).join('')}</div>
+      <button class="btn good bs-go" id="dnGo">${last?T('Start')+' ▶':'▶'}</button>`;
+    $('#dnGo').onclick=()=> last ? intro() : tour(i+1);
+    $('#dnLang2').onclick=toggleLang;
+  }
+  /* EACH GAME OPENS ON ONE CARD: what it is, the one rule, the keys, Play */
+  function intro(){
+    tourAt=-1;
+    const el=$('#dnBrief .card'); if(!el) return;
+    const g=game();
+    $('#dnBrief').classList.remove('hidden');
+    el.innerHTML=`${langBtn()}
+      <div class="bs-big">${g.icon}</div>
+      <h1>${T(g.name)}</h1>
+      <p class="bs-tag">${T(g.topic)}</p>
+      <p class="bs-line">${T(g.lesson)}</p>
+      <div class="bs-k">${g.keys.map(([k,w])=>`<span><kbd>${k}</kbd> ${T(w)}</span>`).join('')}</div>
+      <button class="btn good bs-go" id="dnGo">▶ ${T('Play')}</button>`;
+    $('#dnGo').onclick=()=>{ closeBrief(); go(); };
     $('#dnLang2').onclick=toggleLang;
   }
   const briefOpen = () => { const b=$('#dnBrief'); return !!b && !b.classList.contains('hidden'); };
@@ -929,7 +928,7 @@ window.BUGS = (function(){
                                  el.tagName==='SELECT' || el.isContentEditable));
   function keys(e){
     if(typing(e.target)) return;
-    if(briefOpen()){ if((e.code==='Space'||e.code==='Enter') && !e.repeat){ e.preventDefault(); closeBrief(); } return; }
+    if(briefOpen()){ if((e.code==='Space'||e.code==='Enter') && !e.repeat){ e.preventDefault(); const b=$('#dnGo'); if(b) b.click(); } return; }
     /* ENTER is Run: SPACE belongs to the games (shooting, jumping) */
     if(e.code==='Enter' && !e.repeat && !VM.running){ e.preventDefault(); go(); }
   }
@@ -951,13 +950,14 @@ window.BUGS = (function(){
     addEventListener('pointerdown', ()=>SND.wake(), { once:true });
     $('#dnOpen').onclick=()=>{ if(window.CODER) CODER.toggle(); };
     $('#dnRun').onclick=()=>{ if(VM.running) VM.stopAll(); else go(); };
-    $('#dnHelp').onclick=()=>$('#dnBrief').classList.remove('hidden');
+    $('#dnHelp').onclick=()=>tour(0);
     $('#dnSound').onclick=()=>{ SND.on=!SND.on; if(SND.on) SND.wake(); words(); };
     $('#dnLang').onclick=toggleLang;
     $('#dnReset').onclick=original;
     $('#dnPdf').onclick=download;
     document.querySelectorAll('#bsTop .dn-btn').forEach(b=>b.addEventListener('click', ()=>b.blur()));
     setLang(window.LANG);
+    tour(0);
   }
   function step(dt){
     if(!on) return;
