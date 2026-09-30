@@ -401,7 +401,10 @@ window.BUGS = (function(){
     'Open the blocks':'Abre los bloques','Drag, click, fix.':'Arrastra, haz clic, arregla.',
     'Find the bugs':'Encuentra los bichos','3 in every game. 💡 if stuck.':'3 en cada juego. 💡 si te atoras.',
     'Start':'Empezar','Play':'Jugar','How to play':'Cómo jugar','Start this game over':'Empezar este juego de nuevo',
-    'Download my code':'Descargar mi código','Teacher':'Maestro','Teacher code':'Código del maestro',
+    'Download my code':'Descargar mi código',
+    'My badge':'Mi insignia','You did it!':'¡Lo lograste!','Your name':'Tu nombre',
+    'Download badge':'Descargar insignia','MASTER DEBUGGER':'MAESTRO DEPURADOR',
+    '18 of 18 bugs fixed':'18 de 18 bichos arreglados','Teacher':'Maestro','Teacher code':'Código del maestro',
     'That code is not right.':'Ese código no es correcto.','Leave teacher mode?':'¿Salir del modo maestro?',
     'Leave teacher mode':'Salir del modo maestro','Answer':'Respuesta','Bugs':'Bichos',
     'Load the fixed code':'Cargar el código arreglado','Load the broken code':'Cargar el código con bichos',
@@ -666,7 +669,8 @@ window.BUGS = (function(){
     const done=now.every(Boolean);
     if(done && !teach && !stars[game().id]){ stars[game().id]=true;
       try{ localStorage.setItem(STARS_KEY, JSON.stringify(stars)); }catch(e){} }
-    if(done && !celebrated){ celebrated=true; SND.win(); }
+    if(done && !celebrated){ celebrated=true; SND.win();
+      if(!teach && allStars() && !badgeShown){ badgeShown=true; setTimeout(badge, 900); } }
     if(!done) celebrated=false;
     bugPanel(now);
     levels();
@@ -689,11 +693,13 @@ window.BUGS = (function(){
       ${teach ? `<div class="bs-teach">
           <button class="dn-btn" id="bsAns" title="${T('Load the fixed code')}">✅ ${T('Answer')}</button>
           <button class="dn-btn" id="bsBug" title="${T('Load the broken code')}">🐞 ${T('Bugs')}</button></div>` : ''}
-      ${done ? `<div class="bs-done">🏆 ${last?'':`<button class="dn-btn bs-next" id="bsNext">▶</button>`}</div>` : ''}`;
+      ${done ? `<div class="bs-done">🏆 ${last?'':`<button class="dn-btn bs-next" id="bsNext">▶</button>`}</div>` : ''}
+      ${allStars() ? `<button class="dn-btn bs-badge" id="bsBadge">🏅 ${T('My badge')}</button>` : ''}`;
     if(el.dataset.html!==html){
       el.dataset.html=html; el.innerHTML=html;
       el.querySelectorAll('[data-hint]').forEach(x=>x.onclick=()=>{ hints[+x.dataset.hint]=true; bugPanel(); });
       const nx=$('#bsNext'); if(nx) nx.onclick=()=>{ load(gi+1); intro(); };
+      const bd=$('#bsBadge'); if(bd) bd.onclick=badge;
       const an=$('#bsAns'); if(an) an.onclick=()=>swap(true);
       const bg=$('#bsBug'); if(bg) bg.onclick=()=>swap(false);
     }
@@ -878,7 +884,7 @@ window.BUGS = (function(){
     tip('#dnPdf','Download my code');
     const tb=$('#dnTeacher'); if(tb){ tb.textContent='🔑 '+T('Teacher'); tb.classList.toggle('hidden', !teach); }
     const tk=$('#bsKey'); if(tk){ tk.classList.toggle('on', teach); tk.title=T(teach ? 'Leave teacher mode' : 'Teacher'); }
-    if(briefOpen()) (tourAt<0 ? intro : tour)(tourAt<0 ? undefined : tourAt);
+    if(briefOpen()){ if(tourAt===-2) badge(); else if(tourAt<0) intro(); else tour(tourAt); }
     message(); buttons(); fixedWas=null; bugPanel(); levels();
     if(window.CODER && CODER.open) CODER.render();
   }
@@ -922,6 +928,70 @@ window.BUGS = (function(){
     $('#dnLang2').onclick=toggleLang;
   }
   const briefOpen = () => { const b=$('#dnBrief'); return !!b && !b.classList.contains('hidden'); };
+  /* ======================================================== the badge
+     WHAT A STUDENT HANDS IN AT THE END: a picture with their name on it,
+     drawn on a canvas right here and saved as a PNG — the kind of file
+     Google Classroom takes straight from "Add or create → File". */
+  const allStars = () => GAMES.every(g=>stars[g.id]);
+  let badgeShown=false;
+  function drawBadge(name){
+    const cv=document.createElement('canvas'); cv.width=1200; cv.height=800;
+    const c=cv.getContext('2d');
+    const font=(w,px)=>`${w} ${px}px 'Space Mono', ui-monospace, Menlo, monospace`;
+    c.fillStyle='#15142b'; c.fillRect(0,0,1200,800);
+    /* a few stars, the same every time */
+    let r=7; const rnd=()=>{ r=(r*16807)%2147483647; return r/2147483647; };
+    for(let i=0;i<90;i++){ c.fillStyle=rnd()<0.3?'#8fd3ff':'#d8d8ff'; const z=2+rnd()*3; c.fillRect(rnd()*1200, rnd()*800, z, z); }
+    c.strokeStyle='#ffe14d'; c.lineWidth=10; c.strokeRect(30,30,1140,740);
+    c.strokeStyle='#4b4885'; c.lineWidth=3; c.strokeRect(52,52,1096,696);
+    c.textAlign='center'; c.textBaseline='middle';
+    c.font='120px serif'; c.fillText('🏅',600,150);
+    c.fillStyle='#ffe14d'; c.font=font('bold',64); c.fillText(T('BUG SQUAD').toUpperCase(),600,270);
+    c.fillStyle='#d9d7ff'; c.font=font('bold',30); c.fillText(T('MASTER DEBUGGER'),600,330);
+    c.fillStyle='#ffffff';
+    let px=72; c.font=font('bold',px);
+    const who=name||T('(no name)');
+    while(c.measureText(who).width>1000 && px>30){ px-=4; c.font=font('bold',px); }
+    c.fillText(who,600,430);
+    c.fillStyle='#5dff7a'; c.font=font('bold',32);
+    c.fillText(T('18 of 18 bugs fixed'),600,510);
+    c.font='64px serif';
+    GAMES.forEach((g,i)=>c.fillText(g.icon, 600+(i-2.5)*120, 600));
+    c.fillStyle='#8d8bb8'; c.font=font('normal',24);
+    c.fillText(new Date().toLocaleDateString(window.LANG==='es'?'es':'en',{ year:'numeric', month:'long', day:'numeric' }),600,700);
+    return cv;
+  }
+  function badge(){
+    let name=''; try{ name=localStorage.getItem(NAME_KEY)||''; }catch(e){}
+    tourAt=-2;
+    const el=$('#dnBrief .card'); if(!el) return;
+    $('#dnBrief').classList.remove('hidden');
+    el.innerHTML=`<button class="bs-lang" id="bsBadgeX" aria-label="Close">✕</button>
+      <div class="bs-big">🏅</div>
+      <h1>${T('You did it!')}</h1>
+      <input class="bs-name" id="bsName" maxlength="40" placeholder="${T('Your name')}" value="${String(name).replace(/"/g,'&quot;')}">
+      <img class="bs-prev" id="bsPrev" alt="">
+      <button class="btn good bs-go" id="bsSave">⤓ ${T('Download badge')}</button>`;
+    const inp=$('#bsName'), prev=$('#bsPrev');
+    const paint=()=>{ prev.src=drawBadge(inp.value.trim()).toDataURL('image/png'); };
+    paint(); inp.oninput=paint;
+    /* fonts may still be arriving: draw once more when they have */
+    if(document.fonts && document.fonts.ready) document.fonts.ready.then(paint);
+    setTimeout(()=>inp.focus(), 50);
+    $('#bsBadgeX').onclick=closeBrief;
+    $('#bsSave').onclick=()=>{
+      const nm=inp.value.trim();
+      if(!nm){ inp.focus(); inp.classList.add('need'); return; }
+      try{ localStorage.setItem(NAME_KEY, nm); }catch(e){}
+      drawBadge(nm).toBlob(b=>{
+        const a=document.createElement('a');
+        const slug=nm.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'student';
+        a.href=URL.createObjectURL(b); a.download='bug-squad-badge-'+slug+'.png';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+      }, 'image/png');
+    };
+  }
   function closeBrief(){ $('#dnBrief').classList.add('hidden'); SND.wake(); }
   function setLang(l){
     window.LANG = l==='es' ? 'es' : 'en';

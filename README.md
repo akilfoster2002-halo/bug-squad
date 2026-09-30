@@ -36,6 +36,11 @@ you were on, the language and the name for the PDF are remembered by the browser
 **⤓ DOWNLOAD SCRIPT** saves the current game's code as a PDF to hand in, with the number of bugs
 fixed.
 
+**Completion badge:** once all six games have their ⭐, a card opens (and a 🏅 button stays under
+the bug list): the student types their name, sees the badge, and presses **⤓ Download badge**. It
+saves a PNG (`bug-squad-badge-<name>.png`) with their name, "Master Debugger", the six games and the
+date, ready to upload to Google Classroom (Add or create → File).
+
 **Teacher mode:** press 🔑 and type **1234**. Every game then shows **✅ Answer** (load the fixed
 code, to play it and read it) and **🐞 Bugs** (put the broken code back). Stars are not given in
 teacher mode, and it lasts until the tab is closed (🔑 again to leave). The code is only a
