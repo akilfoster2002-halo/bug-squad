@@ -182,7 +182,8 @@ window.BUGS = (function(){
       return {
         Frog:[
           flag(goto(0,-9), forever(
-            IF(or(touch('Car'), touch('Truck')), goto(0,-9)),
+            IF(touch('Car'), goto(0,-9)),
+            IF(touch('Truck'), goto(0,-9)),
             IF(gt(pos('y'),6), say('I made it!')) )),
           onKey('up',    chg('y', fixed ? 1.5 : -1.5)),
           onKey('down',  chg('y', fixed ? -1.5 : 1.5)),
@@ -242,9 +243,11 @@ window.BUGS = (function(){
     ] },
 
   /* ---------------------------------------------------- 4 OPERATORS */
-  { id:'pong', icon:'🏓', name:'Paddle Pong', topic:'Less than, greater than',
-    lesson:'<b>&lt;</b> less than &nbsp; <b>&gt;</b> greater than',
-    world:{ court:true },
+  { id:'pong', icon:'🏓', name:'Paddle Pong', topic:'Boundaries',
+    lesson:'<b>&lt;</b> less than &nbsp; <b>&gt;</b> greater than<br>The dashed lines are the walls.',
+    world:{ court:true, grid:true, marks:[
+      { y:8,   col:'#ffe14d' }, { y:-9, col:'#ffe14d' }, { x:15, col:'#ffe14d' },
+      { y:6,   col:'#5dc8ff', from:-17, to:-11 } ] },
     cast:[
       { name:'Ball',   shape:'court/ball',   x:0,   y:0 },
       { name:'Paddle', shape:'court/paddle', x:-14, y:-1.5 }
@@ -261,26 +264,28 @@ window.BUGS = (function(){
           IF(touch('Paddle'), vset('vx',0.2), vchg('score',1)),
           IF(lt(pos('x'),-16), goto(0,0)) )) ],
         Paddle:[ flag(goto(-14,-1.5), forever(
-          IF(and(key('up'), fixed ? lt(pos('y'),6) : gt(pos('y'),6)), chg('y',0.3)),
-          IF(and(key('down'), gt(pos('y'),-9)), chg('y',-0.3)) )) ]
+          IF(key('up'),   chg('y',0.3)),
+          IF(key('down'), chg('y',-0.3)),
+          IF(fixed ? gt(pos('y'),6) : lt(pos('y'),6), setTo('y',6)),
+          IF(lt(pos('y'),-9), setTo('y',-9)) )) ]
       };
     },
     bugs:[
-      { what:'The ball shakes at the top',
-        hint:'Where on the screen is y bigger than -9?',
+      { what:'The ball never comes down from the top wall',
+        hint:'Find the line <code>y = -9</code>. Is the ball above it or below it most of the time?',
         ok:()=>{ const f=ifs('Ball');
           return f.some(x=>side(x.b.args.c,'y').some(s=>s.s==='<' && s.n<0) && inside(x.b, sets('vy',1))) &&
                 !f.some(x=>side(x.b.args.c,'y').some(s=>s.s==='>' && s.n<0) && inside(x.b, sets('vy',1))); } },
-      { what:'The ball always flies left',
-        hint:'Where on the screen is x less than 15?',
+      { what:'The ball never reaches the right wall',
+        hint:'Find the line <code>x = 15</code>. Where on the screen is x less than 15?',
         ok:()=>{ const f=ifs('Ball');
           return f.some(x=>side(x.b.args.c,'x').some(s=>s.s==='>' && s.n>0) && inside(x.b, sets('vx',-1))) &&
                 !f.some(x=>side(x.b.args.c,'x').some(s=>s.s==='<' && s.n>0) && inside(x.b, sets('vx',-1))); } },
-      { what:'The paddle won\'t go up',
-        hint:'The paddle starts at y -1.5. Is -1.5 greater than 6?',
-        ok:()=>{ const f=keyIf('Paddle','up');
-          return f.some(x=>side(x.b.args.c,'y').some(s=>s.s==='<' && s.n>0) && inside(x.b, moves('y',1))) &&
-                !f.some(x=>side(x.b.args.c,'y').some(s=>s.s==='>' && s.n>0)); } }
+      { what:'The paddle jumps to the top and can\'t come down',
+        hint:'The blue line is <code>y = 6</code>. The paddle starts at y -1.5. Is -1.5 less than 6?',
+        ok:()=>{ const f=ifs('Paddle'), top=x=>inside(x.b, b=>b.op==='motion.setTo' && b.args.a==='y' && num(b.args.n)>0);
+          return f.some(x=>side(x.b.args.c,'y').some(s=>s.s==='>' && s.n>0) && top(x)) &&
+                !f.some(x=>side(x.b.args.c,'y').some(s=>s.s==='<' && s.n>0) && top(x)); } }
     ] },
 
   /* ------------------------------------------------------ 5 SENSING */
@@ -328,7 +333,7 @@ window.BUGS = (function(){
   /* ------------------------------------------------------ 6 JUMPING */
   { id:'plat', icon:'🍄', name:'Jump Bros', topic:'Jumping',
     lesson:'Jump ↑ &nbsp; Fall ↓ &nbsp; Land ▁',
-    world:{ ground:true },
+    world:{ ground:true, marks:[ { y:0, col:'#ffe14d' } ] },
     cast:[
       { name:'Hero',     shape:'plat/hero',   x:-13, y:0 },
       { name:'Mushroom', shape:'plat/goomba', x:8,   y:0 },
@@ -341,12 +346,12 @@ window.BUGS = (function(){
         Hero:[ flag(goto(-13,0), vset('vy',0), forever(
           IF(key('left'),  chg('x',-0.2)),
           IF(key('right'), chg('x',0.2)),
-          IF(and(key('space'), eq(pos('y'),0)), vset('vy', fixed?0.5:-0.5)),
           ...(fixed ? [vchg('vy',-0.025)] : []),
           chg('y',v('vy')),
           IF(fixed ? lt(pos('y'),0) : gt(pos('y'),0), setTo('y',0), vset('vy',0)),
           IF(touch('Mushroom'), goto(-13,0)),
-          IF(touch('Flag'), say('I win!')) )) ],
+          IF(touch('Flag'), say('I win!')) )),
+          onKey('space', IF(eq(pos('y'),0), vset('vy', fixed?0.5:-0.5))) ],
         Mushroom:[ flag(goto(8,0), forever(chg('x',-0.1), IF(lt(pos('x'),-15), setTo('x',15)))) ],
         Flag:[]
       };
@@ -354,12 +359,12 @@ window.BUGS = (function(){
     bugs:[
       { what:'SPACE sinks the hero',
         hint:'Does a minus speed go up or down?',
-        ok:()=>{ const f=keyIf('Hero','space'); return f.some(x=>inside(x.b, sets('vy',1))) && !f.some(x=>inside(x.b, sets('vy',-1))); } },
+        ok:()=>{ const b=keyHat('Hero','space'); return b.some(sets('vy',1)) && !b.some(sets('vy',-1)); } },
       { what:'No gravity',
         hint:'After a jump, what pulls you back down? Look in Variables.',
         ok:()=>all('Hero').some(x=>x.b.op==='data.change' && x.b.args.v==='vy' && num(x.b.args.n)<0 && inLoop(x.anc)) },
       { what:'The hero can\'t jump',
-        hint:'Should the hero snap to the ground when it is above it, or below it?',
+        hint:'The ground is the line <code>y = 0</code>. Should the hero snap back when it is above it, or below it?',
         ok:()=>{ const f=ifs('Hero');
           const lands=x=>inside(x.b, b=>b.op==='motion.setTo' && b.args.a==='y');
           return f.some(x=>side(x.b.args.c,'y').some(s=>s.s==='<' && s.n<=0.5) && lands(x)) &&
@@ -407,7 +412,7 @@ window.BUGS = (function(){
     'Space Blaster':'Space Blaster (Nave)','Road Hopper':'Road Hopper (Rana)','Chomp':'Chomp (Come-cocos)',
     'Paddle Pong':'Paddle Pong (Tenis)','Brick Smash':'Brick Smash (Ladrillos)','Jump Bros':'Jump Bros (Saltos)',
     'Indentation':'Sangría (adentro/afuera)','Plus and minus':'Más y menos','x and y':'x y y',
-    'Less than, greater than':'Menor que, mayor que','Sensing':'Sensores','Jumping':'Saltar',
+    'Boundaries':'Límites','Sensing':'Sensores','Jumping':'Saltar',
     'move':'mover','shoot':'disparar','hop':'saltar','move the paddle':'mover la paleta',
     'move the bat':'mover el bate','walk':'caminar','jump':'saltar',
     'BLOCKS':'BLOQUES','RUN':'JUGAR','STOP':'PARAR','DOWNLOAD SCRIPT':'DESCARGAR CÓDIGO',
@@ -450,13 +455,13 @@ window.BUGS = (function(){
     'Up and down both use the same letter.':'Arriba y abajo usan la misma letra.',
     '→ goes up':'→ va arriba',
     'Which letter goes across?':'¿Qué letra va de lado a lado?',
-    '<b>&lt;</b> less than &nbsp; <b>&gt;</b> greater than':'<b>&lt;</b> menor que &nbsp; <b>&gt;</b> mayor que',
-    'The ball shakes at the top':'La pelota tiembla arriba',
-    'Where on the screen is y bigger than -9?':'¿En qué parte de la pantalla y es mayor que -9?',
-    'The ball always flies left':'La pelota siempre va a la izquierda',
-    'Where on the screen is x less than 15?':'¿En qué parte de la pantalla x es menor que 15?',
-    'The paddle won\'t go up':'La paleta no sube',
-    'The paddle starts at y -1.5. Is -1.5 greater than 6?':'La paleta empieza en y -1.5. ¿Es -1.5 mayor que 6?',
+    '<b>&lt;</b> less than &nbsp; <b>&gt;</b> greater than<br>The dashed lines are the walls.':'<b>&lt;</b> menor que &nbsp; <b>&gt;</b> mayor que<br>Las líneas punteadas son las paredes.',
+    'The ball never comes down from the top wall':'La pelota nunca baja de la pared de arriba',
+    'Find the line <code>y = -9</code>. Is the ball above it or below it most of the time?':'Busca la línea <code>y = -9</code>. ¿La pelota casi siempre está arriba o abajo de ella?',
+    'The ball never reaches the right wall':'La pelota nunca llega a la pared derecha',
+    'Find the line <code>x = 15</code>. Where on the screen is x less than 15?':'Busca la línea <code>x = 15</code>. ¿En qué parte de la pantalla x es menor que 15?',
+    'The paddle jumps to the top and can\'t come down':'La paleta salta arriba y no puede bajar',
+    'The blue line is <code>y = 6</code>. The paddle starts at y -1.5. Is -1.5 less than 6?':'La línea azul es <code>y = 6</code>. La paleta empieza en y -1.5. ¿Es -1.5 menor que 6?',
     'Sensing asks: <b>touching?</b> <b>pressed?</b>':'Los sensores preguntan: <b>¿tocando?</b> <b>¿presionada?</b>',
     'Which key is the Bat listening for?':'¿Qué tecla está escuchando el Bate?',
     'The ball goes through the bat':'La pelota atraviesa el bate',
@@ -469,7 +474,7 @@ window.BUGS = (function(){
     'No gravity':'No hay gravedad',
     'After a jump, what pulls you back down? Look in Variables.':'Después de un salto, ¿qué te jala hacia abajo? Busca en Variables.',
     'The hero can\'t jump':'El héroe no puede saltar',
-    'Should the hero snap to the ground when it is above it, or below it?':'¿El héroe debe volver al suelo cuando está arriba o abajo de él?'
+    'The ground is the line <code>y = 0</code>. Should the hero snap back when it is above it, or below it?':'El suelo es la línea <code>y = 0</code>. ¿El héroe debe volver cuando está arriba o abajo de ella?'
   });
 
   /* ==================================================== the objects */
@@ -493,6 +498,22 @@ window.BUGS = (function(){
     G.roomGroup.add(m); return m;
   }
   const W={ x0:-17, x1:17, y0:-10, y1:10 };           // the screen, in squares
+  /* words painted on the floor of the screen: `h` tall, bottom-left at x,y */
+  function label(text, x, y, col, h){
+    const cv=document.createElement('canvas'), c=cv.getContext('2d'), px=64;
+    c.font='bold '+px+'px ui-monospace, Menlo, monospace';
+    const w=Math.ceil(c.measureText(text).width)+8;
+    cv.width=w; cv.height=px+16;
+    c.font='bold '+px+'px ui-monospace, Menlo, monospace';
+    c.fillStyle=col; c.textBaseline='top'; c.fillText(text,4,6);
+    const tex=new THREE.CanvasTexture(cv);
+    const ww=h*cv.width/cv.height;
+    const m=new THREE.Mesh(new THREE.PlaneGeometry(ww,h),
+      new THREE.MeshBasicMaterial({ map:tex, transparent:true }));
+    m.rotation.x=-Math.PI/2;
+    m.position.set(x+ww/2, -0.04+0.004, -(y+h/2));
+    G.roomGroup.add(m);
+  }
   function build(){
     if(G.roomGroup) G.scene.remove(G.roomGroup);
     G.roomGroup=new THREE.Group(); G.scene.add(G.roomGroup);
@@ -521,6 +542,22 @@ window.BUGS = (function(){
         .forEach(q=>strip(q[0],q[1],q[2],q[3],b,1));
     }
     if(w.court){ for(let y=-9.5;y<10;y+=1.4) strip(-0.1,y,0.1,y+0.7,'#3b3a6b',1); }
+    /* A COORDINATE GRID: a faint line every 5 squares, numbered along the edges */
+    if(w.grid){
+      for(let x=-15;x<=15;x+=5){ strip(x-0.03,W.y0,x+0.03,W.y1,'#26244d',1); label(String(x), x, W.y0+0.25, '#8d8bb8', 0.7); }
+      for(let y=-5;y<=5;y+=5){ strip(W.x0,y-0.03,W.x1,y+0.03,'#26244d',1); label(String(y), W.x0+0.8, y+0.15, '#8d8bb8', 0.7); }
+    }
+    /* THE BOUNDARIES THE CODE TESTS, as dashed lines with their numbers */
+    (w.marks||[]).forEach(m=>{
+      const a=m.from!=null?m.from:(m.x!=null?W.y0:W.x0), b=m.to!=null?m.to:(m.x!=null?W.y1:W.x1);
+      for(let t=a;t<b;t+=0.8){
+        if(m.x!=null) strip(m.x-0.06,t,m.x+0.06,Math.min(b,t+0.45),m.col,3);
+        else          strip(t,m.y-0.06,Math.min(b,t+0.45),m.y+0.06,m.col,3);
+      }
+      /* labels sit out in the open, clear of the corners and the score */
+      if(m.x!=null) label('x = '+m.x, m.x-3.4, 1.2, m.col, 0.8);
+      else          label('y = '+m.y, m.to!=null ? m.to-2 : -11, m.y+(m.y<0?0.3:-1.1), m.col, 0.8);
+    });
     if(w.ground){ strip(W.x0,-10,W.x1,0,'#7a4a24',1); strip(W.x0,-0.5,W.x1,0,'#45b83a',2); }
   }
 

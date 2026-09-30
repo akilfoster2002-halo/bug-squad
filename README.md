@@ -9,13 +9,13 @@ watch what goes wrong, open the **BLOCKS** and fix it. The bug list under the sc
 | 1 | 🚀 Space Blaster | Indentation | the ← `if` is outside the `forever`; the laser clone's `change y` is under the `repeat` instead of in it; `hide` is outside the `if touching Laser` |
 | 2 | 🐸 Road Hopper | Plus and minus | ↑ hops down, ↓ hops up, → hops left |
 | 3 | 🟡 Chomp | x and y | ↑ and ↓ change `x`; → changes `y` |
-| 4 | 🏓 Paddle Pong | `<` and `>` | the bottom bounce, the right-wall bounce and the paddle's top limit each use the wrong one |
+| 4 | 🏓 Paddle Pong | Boundaries (`<` `>`) | the ball never comes down from the top · never reaches the right wall · the paddle jumps to the top and can't come down. The screen shows a numbered grid and each boundary as a labelled dashed line (`y = 8`, `y = -9`, `x = 15`, `y = 6`) |
 | 5 | 🧱 Brick Smash | Sensing | `key a` instead of `left arrow`; the Ball bounces off `Brick` instead of `Bat`; a Brick breaks on `Bat` instead of `Ball` |
-| 6 | 🍄 Jump Bros | Jumping | the jump speed is minus; the gravity block is **missing** (students add it); the landing test is `>` instead of `<` |
+| 6 | 🍄 Jump Bros | Jumping | the jump speed is minus; the gravity block is **missing** (students add it); the landing test is `>` instead of `<` (the ground is marked `y = 0`) |
 
 The screen stays quiet: a 4-card click-through to start, one card per game (icon, one-line rule,
 keys, ▶ Play), icon buttons, and the bugs as three 🐞 buttons — click one for a single line saying
-what is wrong, then 💡 for a hint that nudges (a question, never the answer). Everything is in English and Spanish (ES / EN), and the
+what is wrong, then 💡 for a hint that nudges (a question, never the answer). No game uses `and` / `or`. Everything is in English and Spanish (ES / EN), and the
 block words stay English because they are the code.
 
 ## The editor

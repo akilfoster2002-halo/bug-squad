@@ -64,6 +64,19 @@ test('5 Brick Smash: fixed, seven bricks appear and the ball can break one', ()=
   d.step(600);
   assert.ok(+d.VM.project.vars.score >= 1, 'a brick broke');
 });
+test('4 Paddle Pong: buggy, the paddle snaps to y 6; fixed, it starts where it stands', ()=>{
+  const bad=arcade(3,false); bad.VM.greenFlag(); bad.step(5);
+  assert.strictEqual(bad.y(bad.who('Paddle')), 6);
+  const ok=arcade(3,true); ok.VM.greenFlag(); ok.step(5);
+  assert.strictEqual(ok.y(ok.who('Paddle')), -1.5);
+  ok.G.keys.ArrowUp=true; ok.step(120);
+  assert.strictEqual(ok.y(ok.who('Paddle')), 6, 'stops at the top boundary');
+});
+test('no game uses `and` or `or` (not taught yet)', ()=>{
+  const d=arcade(0,true);
+  const txt=JSON.stringify(d.BUGS.GAMES.map(g=>[g.code(true), g.code(false)]));
+  assert.ok(!/"op\.(and|or)"/.test(txt));
+});
 test('6 Jump Bros: fixed, SPACE jumps and the hero lands again', ()=>{
   const d=arcade(5,true);
   d.VM.greenFlag(); d.step(2);
